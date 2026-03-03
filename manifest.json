@@ -1,0 +1,18 @@
+{
+    "name": "Louis's Star Bank",
+    "short_name": "Star Bank",
+    "description": "Louis's reward points bank",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#1a1a2e",
+    "theme_color": "#E3000B",
+    "orientation": "portrait",
+    "icons": [
+      {
+        "src": "/icon.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+  }

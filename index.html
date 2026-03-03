@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Louis's Star Bank</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Star Bank">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --yellow: #FFD700; --orange: #FF6B00; --red: #E3000B;
+  --blue: #006CB7; --green: #00A650; --dark: #1a1a2e;
+}
+body { font-family: 'Nunito', sans-serif; background: var(--dark); min-height: 100vh; padding: 12px;
+  background-image: radial-gradient(circle at 20% 20%, #16213e 0%, transparent 50%), radial-gradient(circle at 80% 80%, #0f3460 0%, transparent 50%); }
+
+/* ── SUPABASE CONFIG BANNER ── */
+.config-banner { background: #ff4444; color: white; padding: 10px 14px; border-radius: 10px; margin-bottom: 12px;
+  font-size: 0.78rem; font-weight: 700; text-align: center; display: none; }
+.config-banner.show { display: block; }
+.config-banner a { color: #ffe0e0; }
+
+/* ── HEADER ── */
+.header { background: var(--red); border-radius: 16px 16px 0 0; padding: 18px 20px 12px;
+  text-align: center; border: 4px solid #c0000a; }
+.studs { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; }
+.stud { width: 26px; height: 26px; background: #ff2020; border-radius: 50%;
+  border: 3px solid #c0000a; box-shadow: inset 0 -2px 4px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.4); }
+.header h1 { color: white; font-size: 1.7rem; font-weight: 900; text-shadow: 2px 2px 0 #900008; }
+.header p { color: #ffd0d0; font-size: 0.82rem; margin-top: 3px; }
+.sync-status { font-size: 0.7rem; color: #ffaaaa; margin-top: 4px; }
+
+/* ── MAIN ── */
+.main { background: #f0f4f8; border-radius: 0 0 16px 16px; border: 4px solid #ddd; border-top: none; padding: 14px; }
+
+/* ── BALANCE ── */
+.balance-card { background: var(--yellow); border-radius: 12px; padding: 16px; text-align: center;
+  border: 4px solid #e6b800; box-shadow: 0 4px 0 #b38c00; margin-bottom: 14px; }
+.balance-label { font-size: 0.8rem; font-weight: 800; color: #7a5c00; text-transform: uppercase; letter-spacing: 1px; }
+.balance-amount { font-size: 3.2rem; font-weight: 900; color: var(--dark); line-height: 1; margin: 4px 0; }
+.balance-sub { font-size: 1rem; color: #7a5c00; font-weight: 700; }
+.brick-row { display: flex; justify-content: center; gap: 4px; margin-top: 10px; min-height: 17px; }
+.brick { height: 14px; border-radius: 3px; border-bottom: 3px solid rgba(0,0,0,0.2); }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 5px; margin-bottom: 12px; }
+.tab { flex: 1; padding: 9px 4px; border: 3px solid #ccc; border-radius: 8px; background: white;
+  font-size: 0.75rem; font-weight: 800; cursor: pointer; text-align: center; transition: all 0.15s; color: #555;
+  font-family: 'Nunito', sans-serif; }
+.tab.active { background: var(--blue); border-color: #004f8a; color: white; box-shadow: 0 3px 0 #004f8a; transform: translateY(-1px); }
+
+/* ── PANELS ── */
+.panel { display: none; }
+.panel.active { display: block; }
+.section-title { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #888; margin: 12px 0 6px; }
+
+/* ── BEHAVIOUR ITEMS ── */
+.behaviour-item { background: white; border-radius: 10px; padding: 11px 12px; margin-bottom: 7px;
+  border: 2px solid #e0e0e0; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: 0 2px 0 #e0e0e0; }
+.behaviour-left { display: flex; align-items: center; gap: 9px; flex: 1; }
+.behaviour-emoji { font-size: 1.3rem; }
+.behaviour-text { font-size: 0.83rem; font-weight: 700; color: #333; }
+.behaviour-worth { font-size: 0.72rem; color: #999; margin-top: 1px; }
+.award-btn { background: var(--green); border: none; border-radius: 8px; color: white; font-weight: 800;
+  font-size: 0.78rem; padding: 7px 11px; cursor: pointer; border-bottom: 3px solid #007a3d;
+  white-space: nowrap; transition: all 0.1s; font-family: 'Nunito', sans-serif; }
+.award-btn:active { transform: translateY(2px); border-bottom-width: 1px; }
+.award-btn.self { background: var(--blue); border-bottom-color: #004f8a; }
+.award-btn.bonus { background: var(--orange); border-bottom-color: #c05000; }
+
+/* ── REWARDS ── */
+.reward-item { background: white; border-radius: 10px; padding: 11px 12px; margin-bottom: 7px;
+  border: 2px solid #e0e0e0; box-shadow: 0 2px 0 #e0e0e0; }
+.reward-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+.reward-left { display: flex; align-items: center; gap: 9px; flex: 1; }
+.reward-emoji { font-size: 1.3rem; }
+.reward-name { font-size: 0.83rem; font-weight: 700; color: #333; }
+.reward-cost { font-size: 0.72rem; color: #999; margin-top: 1px; }
+.progress-bar { background: #eee; border-radius: 99px; height: 8px; overflow: hidden; margin-bottom: 4px; }
+.progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--blue), var(--green)); transition: width 0.4s ease; }
+.progress-label { font-size: 0.68rem; color: #aaa; text-align: right; font-weight: 700; }
+.claim-btn { background: var(--orange); border: none; border-radius: 8px; color: white; font-weight: 800;
+  font-size: 0.78rem; padding: 7px 12px; cursor: pointer; border-bottom: 3px solid #c05000;
+  transition: all 0.1s; white-space: nowrap; font-family: 'Nunito', sans-serif; }
+.claim-btn:disabled { background: #ccc; border-bottom-color: #aaa; cursor: not-allowed; color: #888; }
+.claim-btn:not(:disabled):active { transform: translateY(2px); border-bottom-width: 1px; }
+
+/* ── HISTORY ── */
+.history-item { background: white; border-radius: 8px; padding: 9px 12px; margin-bottom: 6px;
+  border: 2px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.history-desc { font-size: 0.8rem; color: #333; font-weight: 700; }
+.history-time { font-size: 0.68rem; color: #bbb; margin-top: 1px; }
+.history-amount { font-size: 1rem; font-weight: 900; }
+.history-amount.earn { color: var(--green); }
+.history-amount.spend { color: var(--red); }
+.empty { text-align: center; color: #bbb; font-size: 0.85rem; padding: 30px 0; font-weight: 600; }
+
+/* ── TOAST ── */
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px);
+  background: var(--green); color: white; padding: 12px 24px; border-radius: 99px;
+  font-weight: 800; font-size: 0.92rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease; z-index: 999; white-space: nowrap; font-family: 'Nunito', sans-serif; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.spend { background: var(--orange); }
+
+/* ── LOADING ── */
+  .loading { text-align: center; padding: 20px; color: #aaa; font-weight: 700; font-size: 0.85rem; }
+
+  /* Reset modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: white; border-radius: 16px; padding: 24px; max-width: 300px; width: 90%; text-align: center; border: 4px solid #ddd; }
+  .modal h3 { font-size: 1.1rem; font-weight: 900; margin-bottom: 8px; }
+  .modal p { font-size: 0.82rem; color: #666; margin-bottom: 16px; font-weight: 600; }
+  .modal input { width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem;
+    font-family: 'Nunito', sans-serif; font-weight: 700; text-align: center; margin-bottom: 12px; }
+  .modal input:focus { outline: none; border-color: var(--blue); }
+  .modal-error { font-size: 0.75rem; color: var(--red); font-weight: 700; margin-bottom: 10px; min-height: 18px; }
+  .modal-btns { display: flex; gap: 8px; }
+  .modal-btns button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 800;
+    font-size: 0.85rem; cursor: pointer; font-family: 'Nunito', sans-serif; border-bottom: 3px solid transparent; }
+  .btn-cancel { background: #eee; color: #555; border-bottom-color: #ccc; }
+  .btn-reset { background: var(--red); color: white; border-bottom-color: #900008; }
+
+  .reset-trigger { display: block; text-align: center; margin-top: 14px; font-size: 0.7rem;
+    color: #ccc; cursor: pointer; font-weight: 700; }
+</style>
+</head>
+<body>
+<div style="max-width:480px;margin:0 auto;">
+
+  <div class="config-banner" id="configBanner">
+    ⚠️ Supabase not configured — running in offline mode. <br>
+    Edit <strong>SUPABASE_URL</strong> and <strong>SUPABASE_KEY</strong> in the script to go live.
+  </div>
+
+  <div class="header">
+    <div class="studs">
+      <div class="stud"></div><div class="stud"></div><div class="stud"></div>
+      <div class="stud"></div><div class="stud"></div><div class="stud"></div>
+    </div>
+    <h1>⭐ Louis's Star Bank</h1>
+    <p>Save up or cash in — it's your choice!</p>
+    <div class="sync-status" id="syncStatus"></div>
+  </div>
+
+  <div class="main">
+    <div class="balance-card">
+      <div class="balance-label">⭐ Star Balance</div>
+      <div class="balance-amount" id="balance">—</div>
+      <div class="balance-sub">stars saved up</div>
+      <div class="brick-row" id="brickRow"></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('earn')">⭐ Earn</div>
+      <div class="tab" onclick="switchTab('rewards')">🎁 Rewards</div>
+      <div class="tab" onclick="switchTab('history')">📖 History</div>
+    </div>
+
+    <div class="panel active" id="panel-earn">
+      <div class="section-title">🧑‍💼 Mummy / Daddy Awards (2 ⭐)</div>
+      <div id="parentBehaviours"></div>
+      <div class="section-title">🙋 Louis Can Claim (1 ⭐)</div>
+      <div id="selfBehaviours"></div>
+      <div class="section-title">🌟 Bonus Star</div>
+      <div id="bonusBehaviours"></div>
+      <span class="reset-trigger" onclick="openReset()">⚙ Reset everything</span>
+    </div>
+
+    <div class="panel" id="panel-rewards">
+      <div class="section-title">🎁 What can you save for?</div>
+      <div id="rewardsList"></div>
+    </div>
+
+    <div class="panel" id="panel-history">
+      <div class="section-title">📖 Star History</div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- Reset modal -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal">
+    <h3>🔒 Reset Everything?</h3>
+    <p>This will wipe all stars and history. Enter the parent password to confirm.</p>
+    <input type="password" id="resetPin" placeholder="Password" />
+    <div class="modal-error" id="resetError"></div>
+    <div class="modal-btns">
+      <button class="modal-btns btn-cancel" onclick="closeReset()">Cancel</button>
+      <button class="modal-btns btn-reset" onclick="confirmReset()">Reset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  SUPABASE CONFIG — replace these two values
+// ═══════════════════════════════════════════════════
+const SUPABASE_URL = 'https://oxmaqeuhdggpmvxatxzk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94bWFxZXVoZGdncG12eGF0eHprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1NDcyMTAsImV4cCI6MjA4ODEyMzIxMH0.uASYH1AyKKRVDuf2on2sMQ8A2S2lnM9ToDcuJBBtPvc';
+// ═══════════════════════════════════════════════════
+
+const USE_SUPABASE = SUPABASE_URL !== 'YOUR_SUPABASE_URL';
+
+// ── STATIC DATA ───────────────────────────────────
+const parentBehaviours = [
+  { emoji:'😌', text:'Handled a "no" calmly', worth:2 },
+  { emoji:'💬', text:'Used kind words when frustrated', worth:2 },
+  { emoji:'🤝', text:'Apologised genuinely', worth:2 },
+  { emoji:'⏳', text:'Showed patience', worth:2 },
+  { emoji:'👂', text:'Responded first time when asked', worth:2 },
+  { emoji:'💛', text:'Was kind unprompted', worth:2 },
+  { emoji:'🧘', text:'Calmed himself down after upset', worth:2 },
+];
+const selfBehaviours = [
+  { emoji:'👕', text:'Got dressed without being asked', worth:1 },
+  { emoji:'🦷', text:'Cleaned teeth without reminders', worth:1 },
+  { emoji:'🧹', text:'Tidied room / put toys away', worth:1 },
+  { emoji:'🎒', text:'Put bag & shoes away', worth:1 },
+  { emoji:'🍽️', text:'Ate dinner without complaining', worth:1 },
+  { emoji:'🛏️', text:'Got into bed on time', worth:1 },
+];
+const bonusBehaviours = [
+  { emoji:'🌟', text:'Bonus star — something amazing!', worth:3 },
+];
+const rewards = [
+  { emoji:'🕹️', name:'Extra 30 mins screen time', cost:4 },
+  { emoji:'🍕', name:'Choice of dinner', cost:5 },
+  { emoji:'🛁', name:'Mega bubble bath with toys', cost:6 },
+  { emoji:'🎬', name:'Movie night', cost:8 },
+  { emoji:'💛', name:'Day out with Mummy', cost:20 },
+  { emoji:'🧱', name:'Small Lego set', cost:30 },
+  { emoji:'🏆', name:'Big Lego set', cost:60 },
+];
+
+// ── STATE ─────────────────────────────────────────
+let balance = 0;
+let history = [];
+
+// ── SUPABASE HELPERS ──────────────────────────────
+async function sbFetch(path, opts={}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...opts.headers
+    }, ...opts
+  });
+  if (!res.ok) throw new Error(await res.text());
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+async function loadFromSupabase() {
+  const [stateRows, histRows] = await Promise.all([
+    sbFetch('louis_state?select=*&limit=1'),
+    sbFetch('louis_history?select=*&order=created_at.desc&limit=50')
+  ]);
+  balance = stateRows?.[0]?.balance ?? 0;
+  history = (histRows || []).map(r => ({
+    desc: r.description, amount: r.amount, type: r.type,
+    time: new Date(r.created_at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+  }));
+}
+
+async function saveToSupabase(desc, amount, type) {
+  const newBal = type === 'earn' ? balance + amount : balance - amount;
+  await Promise.all([
+    sbFetch('louis_state?id=eq.1', {
+      method: 'PATCH', body: JSON.stringify({ balance: newBal })
+    }),
+    sbFetch('louis_history', {
+      method: 'POST', body: JSON.stringify({ description: desc, amount, type })
+    })
+  ]);
+  balance = newBal;
+  history.unshift({ desc, amount, type, time: now() });
+}
+
+// ── LOCAL STORAGE FALLBACK ────────────────────────
+function loadLocal() {
+  balance = parseInt(localStorage.getItem('louis_balance') || '0');
+  history = JSON.parse(localStorage.getItem('louis_history') || '[]');
+}
+function saveLocal(desc, amount, type) {
+  balance = type === 'earn' ? balance + amount : balance - amount;
+  history.unshift({ desc, amount, type, time: now() });
+  localStorage.setItem('louis_balance', balance);
+  localStorage.setItem('louis_history', JSON.stringify(history));
+}
+
+// ── INIT ──────────────────────────────────────────
+async function init() {
+  console.log('[StarBank] USE_SUPABASE:', USE_SUPABASE);
+  console.log('[StarBank] SUPABASE_URL:', SUPABASE_URL);
+  console.log('[StarBank] SUPABASE_KEY starts with:', SUPABASE_KEY.substring(0, 20));
+
+  if (!USE_SUPABASE) {
+    console.warn('[StarBank] Supabase not configured — falling back to localStorage');
+    document.getElementById('configBanner').classList.add('show');
+    loadLocal();
+  } else {
+    document.getElementById('syncStatus').textContent = 'Syncing...';
+    try {
+      console.log('[StarBank] Attempting Supabase fetch...');
+      await loadFromSupabase();
+      console.log('[StarBank] Supabase load successful. Balance:', balance);
+      document.getElementById('syncStatus').textContent = 'Synced ✓';
+      setTimeout(() => document.getElementById('syncStatus').textContent = '', 2000);
+    } catch(e) {
+      console.error('[StarBank] Supabase failed:', e.message, e);
+      document.getElementById('syncStatus').textContent = 'Sync failed — offline mode';
+      document.getElementById('configBanner').classList.add('show');
+      loadLocal();
+    }
+  }
+  render();
+}
+
+// ── ACTIONS ───────────────────────────────────────
+async function earn(idx, type) {
+  const lists = { award: parentBehaviours, self: selfBehaviours, bonus: bonusBehaviours };
+  const b = lists[type][idx];
+  const desc = b.emoji + ' ' + b.text;
+  if (USE_SUPABASE) {
+    try { await saveToSupabase(desc, b.worth, 'earn'); }
+    catch(e) { saveLocal(desc, b.worth, 'earn'); }
+  } else { saveLocal(desc, b.worth, 'earn'); }
+  render();
+  showToast(`+${b.worth} ⭐ Amazing Louis!`, false);
+}
+
+async function claim(idx) {
+  const r = rewards[idx];
+  if (balance < r.cost) return;
+  const desc = '🎁 Claimed: ' + r.name;
+  if (USE_SUPABASE) {
+    try { await saveToSupabase(desc, r.cost, 'spend'); }
+    catch(e) { saveLocal(desc, r.cost, 'spend'); }
+  } else { saveLocal(desc, r.cost, 'spend'); }
+  render();
+  showToast(`🎉 Enjoy your ${r.name}!`, true);
+}
+
+// ── RENDER ────────────────────────────────────────
+function render() {
+  document.getElementById('balance').textContent = balance;
+  // bricks
+  const row = document.getElementById('brickRow');
+  const cols = ['#FF6B00','#006CB7','#00A650','#E3000B','#FFD700'];
+  const count = Math.min(balance, 14);
+  row.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const b = document.createElement('div');
+    b.className = 'brick';
+    b.style.background = cols[i % cols.length];
+    b.style.width = count > 9 ? '15px' : '22px';
+    row.appendChild(b);
+  }
+  // behaviours
+  const renderList = (id, list, type) => {
+    document.getElementById(id).innerHTML = list.map((b,i) => `
+      <div class="behaviour-item">
+        <div class="behaviour-left">
+          <div class="behaviour-emoji">${b.emoji}</div>
+          <div>
+            <div class="behaviour-text">${b.text}</div>
+            <div class="behaviour-worth">Worth ${b.worth} ⭐</div>
+          </div>
+        </div>
+        <button class="award-btn ${type}" onclick="earn(${i},'${type}')">+${b.worth} ⭐</button>
+      </div>`).join('');
+  };
+  renderList('parentBehaviours', parentBehaviours, 'award');
+  renderList('selfBehaviours', selfBehaviours, 'self');
+  renderList('bonusBehaviours', bonusBehaviours, 'bonus');
+  // rewards
+  document.getElementById('rewardsList').innerHTML = rewards.map((r,i) => {
+    const pct = Math.min(100, Math.round((balance / r.cost) * 100));
+    const can = balance >= r.cost;
+    return `<div class="reward-item">
+      <div class="reward-top">
+        <div class="reward-left">
+          <div class="reward-emoji">${r.emoji}</div>
+          <div>
+            <div class="reward-name">${r.name}</div>
+            <div class="reward-cost">${r.cost} ⭐ needed</div>
+          </div>
+        </div>
+        <button class="claim-btn" ${can?'':'disabled'} onclick="claim(${i})">
+          ${can ? 'Claim! 🎉' : `${r.cost - balance} more ⭐`}
+        </button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">${pct}% there!</div>
+    </div>`;
+  }).join('');
+  // history
+  const hEl = document.getElementById('historyList');
+  if (!history.length) { hEl.innerHTML = '<div class="empty">No stars yet — let\'s go Louis! ⭐</div>'; return; }
+  hEl.innerHTML = history.slice(0,30).map(h => `
+    <div class="history-item">
+      <div>
+        <div class="history-desc">${h.desc}</div>
+        <div class="history-time">${h.time}</div>
+      </div>
+      <div class="history-amount ${h.type}">${h.type==='earn'?'+':'-'}${h.amount} ⭐</div>
+    </div>`).join('');
+}
+
+function switchTab(name) {
+  const names = ['earn','rewards','history'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.className = 'tab' + (names[i]===name?' active':''));
+  document.querySelectorAll('.panel').forEach(p => p.className = 'panel');
+  document.getElementById('panel-'+name).className = 'panel active';
+}
+
+function showToast(msg, isSpend) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isSpend?' spend':'') + ' show';
+  setTimeout(() => t.className = 'toast'+(isSpend?' spend':''), 2500);
+}
+
+function now() {
+  return new Date().toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+// ── RESET ─────────────────────────────────────────
+const RESET_PASSWORD = 'stars2026'; // change this to whatever you want
+
+function openReset() {
+  document.getElementById('resetPin').value = '';
+  document.getElementById('resetError').textContent = '';
+  document.getElementById('resetModal').classList.add('show');
+  setTimeout(() => document.getElementById('resetPin').focus(), 100);
+}
+function closeReset() {
+  document.getElementById('resetModal').classList.remove('show');
+}
+async function confirmReset() {
+  const val = document.getElementById('resetPin').value;
+  if (val !== RESET_PASSWORD) {
+    document.getElementById('resetError').textContent = 'Wrong password — try again.';
+    return;
+  }
+  if (USE_SUPABASE) {
+    try {
+      await Promise.all([
+        sbFetch('louis_state?id=eq.1', { method:'PATCH', body: JSON.stringify({ balance: 0 }) }),
+        sbFetch('louis_history', { method:'DELETE', headers:{ 'Authorization':`Bearer ${SUPABASE_KEY}`, 'apikey': SUPABASE_KEY } })
+      ]);
+    } catch(e) { console.error(e); }
+  }
+  balance = 0; history = [];
+  localStorage.setItem('louis_balance', 0);
+  localStorage.setItem('louis_history', '[]');
+  closeReset();
+  render();
+  showToast('✓ Everything reset!', false);
+}
+
+init();
+</script>
+</body>
+</html>
