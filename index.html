@@ -89,6 +89,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 .behaviour-emoji{font-size:1.3rem;width:28px;text-align:center;}
 .behaviour-text{font-size:0.83rem;font-weight:700;color:#333;}
 .behaviour-worth{font-size:0.72rem;color:#999;margin-top:1px;}
+.last-given{font-size:0.68rem;color:#bbb;font-weight:700;margin-left:6px;}
 .award-btn{border:none;border-radius:8px;color:white;font-weight:800;font-size:0.78rem;
   padding:7px 11px;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;
   font-family:'Nunito',sans-serif;transition:all .1s;}
@@ -268,6 +269,12 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 
     <!-- PARENT -->
     <div class="panel" id="panel-parent">
+
+      <!-- Viewing as -->
+      <div class="parent-section">
+        <h3>👁 Viewing Profile</h3>
+        <div id="profileSwitcher"></div>
+      </div>
 
       <!-- Profiles -->
       <div class="parent-section">
@@ -466,7 +473,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 <script src="/config.js"></script>
 <script>
 // ── CONFIG ────────────────────────────────────────
-const PARENT_PASSWORD = 'stars2024';
+// PARENT_PASSWORD is set in config.js
 const TIMEOUT_MS = 30000;
 const USE_SUPABASE = typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 
@@ -476,7 +483,7 @@ let timeoutTimer = null;
 
 // ── APP STATE ─────────────────────────────────────
 let profiles = [], behaviours = [], rewards = [], history = [];
-let balance = 0, windows = [], selfClaims = [];
+let balance = 0, windows = [], selfClaims = [], lastGiven = {};
 let editingBehaviourId = null, editingRewardId = null;
 let editingProfileId = null, editingWindowId = null;
 let pendingImageBase64 = null;
@@ -511,10 +518,17 @@ async function loadProfileData(pid) {
   balance = stateRows?.[0]?.balance ?? 0;
   behaviours = bRows || [];
   rewards = rRows || [];
-  history = (hRows || []).map(r => ({ desc: r.description, amount: r.amount, type: r.type,
+  history = (hRows || []).map(r => ({ dbId: r.id, desc: r.description, amount: r.amount, type: r.type,
     time: new Date(r.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }));
   windows = wRows || [];
   selfClaims = cRows || [];
+  // build lastGiven map: behaviour description → most recent earn timestamp
+  lastGiven = {};
+  for (const h of (hRows || [])) {
+    if (h.type !== 'earn') continue;
+    const key = h.description;
+    if (!lastGiven[key]) lastGiven[key] = new Date(h.created_at);
+  }
 }
 
 // ── TIME WINDOW HELPERS ───────────────────────────
@@ -536,8 +550,9 @@ function hasClaimedInWindow(behaviourId) {
 function resetTimeout() {
   clearTimeout(timeoutTimer);
   if (session.role === 'child') {
-    timeoutTimer = setTimeout(() => logout(), TIMEOUT_MS);
+    timeoutTimer = setTimeout(logout, TIMEOUT_MS);
   }
+  // parent sessions never time out
 }
 function attachActivityListeners() {
   ['touchstart', 'click', 'keydown'].forEach(e =>
@@ -647,7 +662,6 @@ function renderLoginScreen() {
 // ── EARN ──────────────────────────────────────────
 async function earn(id) {
   const b = behaviours.find(x => x.id === id); if (!b) return;
-  // self-claim: log window claim
   if (b.type === 'self') {
     const key = currentWindowKey(session.profile.id);
     if (!key || hasClaimedInWindow(id)) return;
@@ -659,7 +673,10 @@ async function earn(id) {
       selfClaims.push({ profile_id: session.profile.id, behaviour_id: id, window_key: key });
     }
   }
-  await transact(b.emoji + ' ' + b.description, b.worth, 'earn');
+  // update lastGiven immediately
+  const descKey = b.emoji + ' ' + b.description;
+  lastGiven[descKey] = new Date();
+  await transact(descKey, b.worth, 'earn');
   showToast(`+${b.worth} ⭐ Amazing ${session.profile.name}!`, '');
 }
 async function claim(id) {
@@ -904,7 +921,43 @@ async function deleteWindow(id) {
   render(); showToast('Deleted', 'spend');
 }
 
-// ── RESET ─────────────────────────────────────────
+// ── SWITCH PARENT PROFILE ─────────────────────────
+async function switchParentProfile(id) {
+  if (id === session.profile.id) return;
+  const p = profiles.find(x => x.id === id); if (!p) return;
+  session.profile = p;
+  setSyncStatus('Switching...');
+  applyProfileTheme();
+  await loadProfileData(p.id);
+  setSyncStatus('');
+  render();
+  showToast(`Viewing ${p.name}'s profile`, '');
+}
+
+// ── DELETE HISTORY ITEM ───────────────────────────
+async function deleteHistory(idx) {
+  const item = history[idx]; if (!item) return;
+  if (!confirm(`Remove "${item.desc}" (${item.type==='earn'?'+':'-'}${item.amount} ⭐) from history?\n\nThis will also adjust the star balance.`)) return;
+  // reverse the transaction on balance
+  const adjustment = item.type === 'earn' ? -item.amount : item.amount;
+  const newBalance = balance + adjustment;
+  if (USE_SUPABASE) {
+    try {
+      // delete by matching description + amount + type — we use the db id stored in item
+      if (item.dbId) {
+        await sbDel(`history?id=eq.${item.dbId}`);
+      } else {
+        // fallback: delete most recent matching row
+        await sbDel(`history?profile_id=eq.${session.profile.id}&description=eq.${encodeURIComponent(item.desc)}&amount=eq.${item.amount}&type=eq.${item.type}&limit=1`);
+      }
+      await sb(`child_state?profile_id=eq.${session.profile.id}`, { method: 'PATCH', body: JSON.stringify({ balance: newBalance }) });
+    } catch(e) { console.error(e); showToast('Delete failed', 'error'); return; }
+  }
+  balance = newBalance;
+  history.splice(idx, 1);
+  render();
+  showToast('Entry removed ✓', 'spend');
+}
 async function confirmReset() {
   if (USE_SUPABASE) {
     await Promise.all([
@@ -963,10 +1016,13 @@ function render() {
   }).join('') : '<div class="empty">No rewards yet</div>';
 
   // history
-  document.getElementById('historyList').innerHTML = history.length ? history.slice(0, 30).map(h =>
+  document.getElementById('historyList').innerHTML = history.length ? history.slice(0, 30).map((h, i) =>
     `<div class="history-item">
       <div><div class="history-desc">${h.desc}</div><div class="history-time">${h.time}</div></div>
-      <div class="history-amount ${h.type}">${h.type==='earn'?'+':'-'}${h.amount} ⭐</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="history-amount ${h.type}">${h.type==='earn'?'+':'-'}${h.amount} ⭐</div>
+        ${isParent ? `<button class="del-btn" onclick="deleteHistory(${i})">Del</button>` : ''}
+      </div>
     </div>`).join('') : `<div class="empty">No stars yet — let's go ${session.profile?.name}! ⭐</div>`;
 
   // parent panel
@@ -1000,6 +1056,15 @@ function renderBehaviourGroup(elId, type, canAward) {
 }
 
 function renderParentPanel() {
+  // profile switcher
+  document.getElementById('profileSwitcher').innerHTML = profiles.map(p =>
+    `<div class="profile-card" style="cursor:pointer;border:2px solid ${p.id===session.profile.id?'#006CB7':'#eee'};background:${p.id===session.profile.id?'#e8f0fe':'#f8f8f8'}"
+      onclick="switchParentProfile(${p.id})">
+      ${p.avatar?.startsWith('data:') ? `<img src="${p.avatar}" class="profile-card-avatar-img"/>` : `<div class="profile-card-avatar">${p.avatar||'⭐'}</div>`}
+      <div style="flex:1"><div class="profile-card-name">${p.name}</div>
+        <div class="profile-card-sub">${p.id===session.profile.id?'✓ Currently viewing':'Tap to switch'}</div>
+      </div>
+    </div>`).join('');
   document.getElementById('manageProfiles').innerHTML = profiles.map(p =>
     `<div class="profile-card">
       ${p.avatar?.startsWith('data:') ? `<img src="${p.avatar}" class="profile-card-avatar-img"/>` : `<div class="profile-card-avatar">${p.avatar||'⭐'}</div>`}
@@ -1059,6 +1124,24 @@ function showToast(msg, type) {
   setTimeout(() => t.className = 'toast ' + (type||''), 2500);
 }
 function setSyncStatus(msg) { document.getElementById('syncStatus').textContent = msg; }
+function relativeTime(date) {
+  if (!date) return null;
+  const secs = Math.floor((Date.now() - date) / 1000);
+  if (secs < 60)  return 'just now';
+  const mins = Math.floor(secs / 60);
+  if (mins < 60)  return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 6)    return `${hrs}h ago`;
+  const now = new Date(), d = new Date(date);
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yestStart  = new Date(todayStart - 86400000);
+  if (d >= todayStart) return 'today';
+  if (d >= yestStart)  return 'yesterday';
+  const days = Math.floor((todayStart - d) / 86400000);
+  if (days < 30)  return `${days}d ago`;
+  return d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+}
+
 function now() { return new Date().toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }); }
 
 // ── INIT ──────────────────────────────────────────
