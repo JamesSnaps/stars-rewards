@@ -127,7 +127,27 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 .history-amount.spend{color:var(--red);}
 .empty{text-align:center;color:#bbb;font-size:0.85rem;padding:24px 0;font-weight:600;}
 
-/* Avatar grid */
+/* ── COOL-DOWN TOKEN ── */
+.cooldown-banner{
+  background:#fff0f0;border:2px solid #ffcccc;border-radius:10px;
+  padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;
+}
+.cooldown-banner.hidden{display:none;}
+.cooldown-icon{font-size:1.4rem;flex-shrink:0;}
+.cooldown-text{flex:1;}
+.cooldown-title{font-size:0.82rem;font-weight:900;color:#c0000a;}
+.cooldown-sub{font-size:0.7rem;color:#e05555;font-weight:700;margin-top:1px;}
+.cooldown-clear{background:#c0000a;border:none;border-radius:8px;color:white;
+  font-size:0.72rem;font-weight:800;padding:6px 10px;cursor:pointer;
+  font-family:'Nunito',sans-serif;border-bottom:2px solid #900008;flex-shrink:0;}
+
+/* badge on balance card */
+.cooldown-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#c0000a;color:white;border-radius:99px;
+  font-size:0.72rem;font-weight:900;padding:4px 12px;margin-top:8px;
+}
+.cooldown-badge.hidden{display:none;}
 .avatar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px;}
 .avatar-card{border-radius:12px;border:2px solid #e0e0e0;padding:10px 8px;text-align:center;
   cursor:pointer;transition:all .15s;background:white;box-shadow:0 2px 0 #e0e0e0;position:relative;}
@@ -258,6 +278,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
       <div class="balance-amount" id="balance">—</div>
       <div class="balance-sub">stars saved up</div>
       <div class="brick-row" id="brickRow"></div>
+      <div class="cooldown-badge hidden" id="cooldownBadge">🔴 Cool-down active</div>
     </div>
 
     <div class="tabs" id="tabBar">
@@ -268,6 +289,15 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 
     <!-- EARN -->
     <div class="panel active" id="panel-earn">
+      <!-- cool-down banner — visible to all when active -->
+      <div class="cooldown-banner hidden" id="cooldownBanner">
+        <div class="cooldown-icon">🔴</div>
+        <div class="cooldown-text">
+          <div class="cooldown-title">Cool-down active</div>
+          <div class="cooldown-sub" id="cooldownSub">Self-claims and rewards are frozen.</div>
+        </div>
+        <button class="cooldown-clear hidden" id="cooldownClearBtn" onclick="clearCooldown()">Clear</button>
+      </div>
       <div class="section-title" id="parentEarnTitle">🧑‍💼 Mummy / Daddy Awards</div>
       <div id="parentBehaviours"></div>
       <div class="section-title">🙋 I Can Claim</div>
@@ -338,7 +368,8 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
       <!-- Danger -->
       <div class="parent-section">
         <h3>⚠️ Danger Zone</h3>
-        <button class="danger-btn" onclick="openModal('resetModal')">Reset Stars & History</button>
+        <button class="danger-btn" onclick="openModal('cooldownModal')" id="issueCooldownBtn">🔴 Issue Cool-down Token</button>
+        <button class="danger-btn" style="margin-top:6px;background:#888;border-bottom-color:#555" onclick="openModal('resetModal')">Reset Stars & History</button>
       </div>
 
     </div>
@@ -523,6 +554,30 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
   </div>
 </div>
 
+<!-- Cool-down modal -->
+<div class="modal-overlay" id="cooldownModal">
+  <div class="modal">
+    <h3>🔴 Issue Cool-down Token</h3>
+    <p style="font-size:.82rem;color:#666;font-weight:600;margin-bottom:14px">
+      Self-claims and reward spending will be frozen for 30 minutes, or until you clear it.</p>
+    <div class="form-group">
+      <label>Reason</label>
+      <select id="cooldownReason">
+        <option value="Not listening">Not listening</option>
+        <option value="Being rude">Being rude</option>
+        <option value="Answering back">Answering back</option>
+        <option value="Refusing to cooperate">Refusing to cooperate</option>
+        <option value="Pushing boundaries">Pushing boundaries</option>
+      </select>
+    </div>
+    <div class="modal-error" id="cooldownError"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('cooldownModal')">Cancel</button>
+      <button class="btn-danger" onclick="issueCooldown()">Issue Token</button>
+    </div>
+  </div>
+</div>
+
 <!-- Reset modal -->
 <div class="modal-overlay" id="resetModal">
   <div class="modal">
@@ -554,7 +609,9 @@ let timeoutTimer = null;
 let profiles = [], behaviours = [], rewards = [], history = [];
 let balance = 0, windows = [], selfClaims = [], lastGiven = {};
 let avatars = [], unlockedAvatarIds = [];
-let editingAvatarId = null, pendingAvatarBase64 = null;let editingBehaviourId = null, editingRewardId = null;
+let editingAvatarId = null, pendingAvatarBase64 = null;
+let cooldownToken = null; // { id, reason, expires_at }
+let cooldownTimer = null;let editingBehaviourId = null, editingRewardId = null;
 let editingProfileId = null, editingWindowId = null;
 let pendingImageBase64 = null;
 
@@ -577,7 +634,7 @@ async function loadProfiles() {
   profiles = await sb('profiles?select=*&order=created_at.asc') || [];
 }
 async function loadProfileData(pid) {
-  const [stateRows, bRows, rRows, hRows, wRows, cRows, avRows, unlRows] = await Promise.all([
+  const [stateRows, bRows, rRows, hRows, wRows, cRows, avRows, unlRows, cdRows] = await Promise.all([
     sb(`child_state?profile_id=eq.${pid}&select=balance&limit=1`),
     sb(`behaviours?profile_id=eq.${pid}&select=*&order=created_at.asc`),
     sb(`rewards?profile_id=eq.${pid}&select=*&order=cost.asc`),
@@ -585,7 +642,8 @@ async function loadProfileData(pid) {
     sb(`time_windows?profile_id=eq.${pid}&select=*&order=start_hour.asc`),
     sb(`self_claims?profile_id=eq.${pid}&select=*`),
     sb(`avatars?profile_id=eq.${pid}&select=*&order=cost.asc`),
-    sb(`unlocked_avatars?profile_id=eq.${pid}&select=avatar_id`)
+    sb(`unlocked_avatars?profile_id=eq.${pid}&select=avatar_id`),
+    sb(`cooldown_tokens?profile_id=eq.${pid}&select=*&limit=1`)
   ]);
   balance = stateRows?.[0]?.balance ?? 0;
   behaviours = bRows || [];
@@ -596,11 +654,16 @@ async function loadProfileData(pid) {
   selfClaims = cRows || [];
   avatars = avRows || [];
   unlockedAvatarIds = (unlRows || []).map(r => r.avatar_id);
+  const cd = cdRows?.[0];
+  cooldownToken = cd && new Date(cd.expires_at) > new Date() ? cd : null;
+  if (cd && !cooldownToken && USE_SUPABASE) sbDel(`cooldown_tokens?profile_id=eq.${pid}`); // clean up expired
   // build lastGiven map: behaviour description → most recent earn timestamp
+  // strip leading emoji + space if present so keys match behaviour lookup
   lastGiven = {};
   for (const h of (hRows || [])) {
     if (h.type !== 'earn') continue;
-    const key = h.description;
+    // strip emoji prefix (format is "emoji description") to get raw description
+    const key = h.description.replace(/^\S+\s/, '');
     if (!lastGiven[key]) lastGiven[key] = new Date(h.created_at);
   }
 }
@@ -737,6 +800,7 @@ function renderLoginScreen() {
 async function earn(id) {
   const b = behaviours.find(x => x.id === id); if (!b) return;
   if (b.type === 'self') {
+    if (isOnCooldown()) { showToast('🔴 Cool-down active — self-claims frozen', 'error'); return; }
     const key = currentWindowKey(session.profile.id);
     if (!key || hasClaimedInWindow(id)) return;
     if (USE_SUPABASE) {
@@ -748,13 +812,13 @@ async function earn(id) {
     }
   }
   // update lastGiven immediately
-  const descKey = b.emoji + ' ' + b.description;
-  lastGiven[descKey] = new Date();
-  await transact(descKey, b.worth, 'earn');
+  lastGiven[b.description] = new Date();
+  await transact(b.emoji + ' ' + b.description, b.worth, 'earn');
   showToast(`+${b.worth} ⭐ Amazing ${session.profile.name}!`, '');
 }
 async function claim(id) {
   const r = rewards.find(x => x.id === id); if (!r || balance < r.cost) return;
+  if (isOnCooldown()) { showToast('🔴 Cool-down active — rewards frozen', 'error'); return; }
   await transact('🎁 Claimed: ' + r.name, r.cost, 'spend');
   showToast(`🎉 Enjoy your ${r.name}!`, 'spend');
 }
@@ -1056,6 +1120,73 @@ async function setAvatar(id) {
   showToast(`🎨 Avatar set!`, '');
 }
 
+// ── COOL-DOWN ─────────────────────────────────────
+function isOnCooldown() {
+  if (!cooldownToken) return false;
+  if (new Date(cooldownToken.expires_at) <= new Date()) {
+    cooldownToken = null;
+    if (USE_SUPABASE) sbDel(`cooldown_tokens?profile_id=eq.${session.profile.id}`);
+    return false;
+  }
+  return true;
+}
+
+function renderCooldown() {
+  clearInterval(cooldownTimer);
+  const active = isOnCooldown();
+  const badge = document.getElementById('cooldownBadge');
+  const banner = document.getElementById('cooldownBanner');
+  const clearBtn = document.getElementById('cooldownClearBtn');
+  const issueBtnEl = document.getElementById('issueCooldownBtn');
+
+  badge.classList.toggle('hidden', !active);
+  banner.classList.toggle('hidden', !active);
+  if (clearBtn) clearBtn.classList.toggle('hidden', session.role !== 'parent');
+  if (issueBtnEl) issueBtnEl.textContent = active ? '🔴 Cool-down Active' : '🔴 Issue Cool-down Token';
+  if (issueBtnEl) issueBtnEl.disabled = active;
+
+  if (active) {
+    const updateSub = () => {
+      const ms = new Date(cooldownToken.expires_at) - new Date();
+      if (ms <= 0) { cooldownToken = null; renderCooldown(); render(); return; }
+      const mins = Math.floor(ms / 60000);
+      const secs = Math.floor((ms % 60000) / 1000);
+      document.getElementById('cooldownSub').textContent =
+        `"${cooldownToken.reason}" · Clears in ${mins}:${String(secs).padStart(2,'0')}`;
+    };
+    updateSub();
+    cooldownTimer = setInterval(updateSub, 1000);
+  }
+}
+
+async function issueCooldown() {
+  const reason = document.getElementById('cooldownReason').value;
+  const expires_at = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+  if (USE_SUPABASE) {
+    // upsert — replace any existing token
+    await sb(`cooldown_tokens?profile_id=eq.${session.profile.id}`, { method:'DELETE',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`} });
+    const rows = await sb('cooldown_tokens', { method:'POST',
+      body: JSON.stringify({ profile_id: session.profile.id, reason, expires_at }) });
+    cooldownToken = rows[0];
+  } else {
+    cooldownToken = { reason, expires_at, id: Date.now() };
+  }
+  closeModal('cooldownModal');
+  renderCooldown();
+  render();
+  showToast(`🔴 Cool-down issued`, 'spend');
+}
+
+async function clearCooldown() {
+  if (USE_SUPABASE) await sbDel(`cooldown_tokens?profile_id=eq.${session.profile.id}`);
+  cooldownToken = null;
+  clearInterval(cooldownTimer);
+  renderCooldown();
+  render();
+  showToast('✓ Cool-down cleared', '');
+}
+
 // ── AVATAR CRUD (parent) ──────────────────────────
 function openAvatarModal(id = null) {
   editingAvatarId = id; pendingAvatarBase64 = null;
@@ -1229,6 +1360,9 @@ function render() {
         ${isParent ? `<button class="del-btn" onclick="deleteHistory(${i})">Del</button>` : ''}
       </div>
     </div>`).join('') : `<div class="empty">No stars yet — let's go ${session.profile?.name}! ⭐</div>`;
+
+  // cool-down
+  renderCooldown();
 
   // avatars
   renderAvatarGrid();
