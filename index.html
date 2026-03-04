@@ -379,6 +379,37 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 
 <!-- ══ MODALS ════════════════════════════════════ -->
 
+<!-- Parent quick action modal -->
+<div class="modal-overlay" id="parentQuickModal">
+  <div class="modal">
+    <h3>👋 Quick Actions</h3>
+    <p style="font-size:.82rem;color:#666;font-weight:600;margin-bottom:16px">Issue a cool-down token before entering, or skip to go straight to the app.</p>
+
+    <div style="background:#fff0f0;border:2px solid #ffcccc;border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:0.78rem;font-weight:900;color:#c0000a;margin-bottom:10px">🔴 Issue Cool-down Token</div>
+      <div class="form-group">
+        <label>For</label>
+        <select id="quickCooldownProfile"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Reason</label>
+        <select id="quickCooldownReason">
+          <option value="Not listening">Not listening</option>
+          <option value="Being rude">Being rude</option>
+          <option value="Answering back">Answering back</option>
+          <option value="Refusing to cooperate">Refusing to cooperate</option>
+          <option value="Pushing boundaries">Pushing boundaries</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="skipQuickAction()">Skip →</button>
+      <button class="btn-danger" onclick="issueQuickCooldown()">Issue & Enter</button>
+    </div>
+  </div>
+</div>
+
 <!-- Parent login -->
 <div class="modal-overlay" id="parentLoginModal">
   <div class="modal">
@@ -645,6 +676,8 @@ async function loadProfileData(pid) {
     sb(`unlocked_avatars?profile_id=eq.${pid}&select=avatar_id`),
     sb(`cooldown_tokens?profile_id=eq.${pid}&select=*&limit=1`)
   ]);
+  console.log('[loadProfileData] hRows:', hRows?.length, 'cdRows:', cdRows?.length);
+  console.log('[loadProfileData] raw earn rows:', (hRows||[]).filter(h=>h.type==='earn').map(h=>h.description));
   balance = stateRows?.[0]?.balance ?? 0;
   behaviours = bRows || [];
   rewards = rRows || [];
@@ -657,14 +690,11 @@ async function loadProfileData(pid) {
   const cd = cdRows?.[0];
   cooldownToken = cd && new Date(cd.expires_at) > new Date() ? cd : null;
   if (cd && !cooldownToken && USE_SUPABASE) sbDel(`cooldown_tokens?profile_id=eq.${pid}`); // clean up expired
-  // build lastGiven map: behaviour description → most recent earn timestamp
-  // strip leading emoji + space if present so keys match behaviour lookup
+  // build lastGiven map keyed by full stored description e.g. "😌 Handled a no calmly"
   lastGiven = {};
   for (const h of (hRows || [])) {
     if (h.type !== 'earn') continue;
-    // strip emoji prefix (format is "emoji description") to get raw description
-    const key = h.description.replace(/^\S+\s/, '');
-    if (!lastGiven[key]) lastGiven[key] = new Date(h.created_at);
+    if (!lastGiven[h.description]) lastGiven[h.description] = new Date(h.created_at);
   }
 }
 
@@ -708,12 +738,43 @@ function confirmParentLogin() {
     document.getElementById('parentLoginError').textContent = 'Wrong password.'; return;
   }
   closeModal('parentLoginModal');
+  // populate profile dropdown
+  document.getElementById('quickCooldownProfile').innerHTML =
+    profiles.map(p => `<option value="${p.id}">${p.avatar?.startsWith('data:') ? '' : p.avatar} ${p.name}</option>`).join('');
+  // show quick cool-down prompt before entering app
+  openModal('parentQuickModal');
+}
+
+function skipQuickAction() {
+  closeModal('parentQuickModal');
+  loginAsParent();
+}
+
+async function issueQuickCooldown() {
+  const pid = parseInt(document.getElementById('quickCooldownProfile').value);
+  const reason = document.getElementById('quickCooldownReason').value;
+  const profile = profiles.find(p => p.id === pid);
+  if (!profile) return;
+  const expires_at = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+  if (USE_SUPABASE) {
+    await sbDel(`cooldown_tokens?profile_id=eq.${pid}`);
+    await sb('cooldown_tokens', { method: 'POST',
+      body: JSON.stringify({ profile_id: pid, reason, expires_at }) });
+  }
+  closeModal('parentQuickModal');
+  showToast(`🔴 Cool-down issued for ${profile.name}`, 'spend');
   loginAsParent();
 }
 async function loginAsChild(profile) {
+  console.log('[login] loginAsChild called for:', profile.name);
   session = { role: 'child', profile };
   setSyncStatus('Loading...');
-  await loadProfileData(profile.id);
+  try {
+    await loadProfileData(profile.id);
+    console.log('[login] loadProfileData complete, balance:', balance);
+  } catch(e) {
+    console.error('[login] loadProfileData failed:', e);
+  }
   setSyncStatus('');
   enterApp();
   resetTimeout();
@@ -812,8 +873,9 @@ async function earn(id) {
     }
   }
   // update lastGiven immediately
-  lastGiven[b.description] = new Date();
-  await transact(b.emoji + ' ' + b.description, b.worth, 'earn');
+  const histKey = b.emoji + ' ' + b.description;
+  lastGiven[histKey] = new Date();
+  await transact(histKey, b.worth, 'earn');
   showToast(`+${b.worth} ⭐ Amazing ${session.profile.name}!`, '');
 }
 async function claim(id) {
@@ -1373,6 +1435,8 @@ function render() {
 
 function renderBehaviourGroup(elId, type, canAward) {
   const list = behaviours.filter(b => b.type === type);
+  console.log(`[render] ${type} behaviours:`, list.map(b => b.emoji+' '+b.description));
+  console.log(`[render] lastGiven keys:`, Object.keys(lastGiven));
   if (!list.length) { document.getElementById(elId).innerHTML = '<div class="empty">None yet</div>'; return; }
   document.getElementById(elId).innerHTML = list.map(b => {
     let btn = '';
@@ -1386,11 +1450,14 @@ function renderBehaviourGroup(elId, type, canAward) {
       }
       // if outside window or already claimed: button hidden entirely
     }
+    const histKey = b.emoji + ' ' + b.description;
+    const lastGivenText = lastGiven[histKey] ? relativeTime(lastGiven[histKey]) : null;
+    const lastGivenHtml = lastGivenText ? `<span class="last-given">Last: ${lastGivenText}</span>` : '';
     return `<div class="behaviour-item">
       <div class="behaviour-left">
         <div class="behaviour-emoji">${b.emoji}</div>
         <div><div class="behaviour-text">${b.description}</div>
-        <div class="behaviour-worth">Worth ${b.worth} ⭐</div></div>
+        <div class="behaviour-worth">Worth ${b.worth} ⭐${lastGivenHtml ? ' · ' + lastGivenHtml : ''}</div></div>
       </div>
       ${btn}
     </div>`;
@@ -1500,12 +1567,20 @@ function now() { return new Date().toLocaleString('en-GB', { day:'numeric', mont
 
 // ── INIT ──────────────────────────────────────────
 async function init() {
+  console.log('[init] starting, USE_SUPABASE:', USE_SUPABASE);
   if (USE_SUPABASE) {
-    try { await loadProfiles(); } catch(e) { console.error(e); }
+    try {
+      await loadProfiles();
+      console.log('[init] profiles loaded:', profiles.length);
+    } catch(e) {
+      console.error('[init] loadProfiles failed:', e);
+    }
   }
   renderLoginScreen();
   attachActivityListeners();
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+  // Service worker disabled during development
+  // Re-enable on Vercel by uncommenting:
+  // if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 }
 
 init();
