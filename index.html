@@ -127,7 +127,29 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 .history-amount.spend{color:var(--red);}
 .empty{text-align:center;color:#bbb;font-size:0.85rem;padding:24px 0;font-weight:600;}
 
-/* ── PARENT PANEL ── */
+/* Avatar grid */
+.avatar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px;}
+.avatar-card{border-radius:12px;border:2px solid #e0e0e0;padding:10px 8px;text-align:center;
+  cursor:pointer;transition:all .15s;background:white;box-shadow:0 2px 0 #e0e0e0;position:relative;}
+.avatar-card:active{transform:translateY(2px);box-shadow:none;}
+.avatar-card.locked{opacity:.85;cursor:default;}
+.avatar-card.active-avatar{border-color:var(--blue);background:#e8f0fe;box-shadow:0 2px 0 #004f8a;}
+.avatar-card img{width:56px;height:56px;border-radius:50%;object-fit:cover;margin-bottom:6px;
+  border:2px solid #eee;display:block;margin-left:auto;margin-right:auto;}
+.avatar-card.locked img{filter:grayscale(1) blur(2px);opacity:.5;}
+.avatar-name{font-size:0.72rem;font-weight:800;color:#333;margin-bottom:2px;}
+.avatar-tier{font-size:0.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
+.avatar-tier.common{color:#888;}
+.avatar-tier.rare{color:var(--blue);}
+.avatar-tier.legendary{color:var(--orange);}
+.avatar-cost{font-size:0.72rem;font-weight:800;color:#555;margin-top:3px;}
+.avatar-active-badge{position:absolute;top:6px;right:6px;background:var(--blue);color:white;
+  border-radius:99px;font-size:0.6rem;font-weight:900;padding:2px 6px;}
+.avatar-lock-icon{font-size:1.4rem;margin-bottom:4px;}
+.unlock-btn{background:var(--orange);border:none;border-radius:8px;color:white;font-weight:800;
+  font-size:0.7rem;padding:5px 10px;cursor:pointer;font-family:'Nunito',sans-serif;
+  border-bottom:2px solid #c05000;margin-top:4px;width:100%;}
+.unlock-btn:disabled{background:#ccc;border-bottom-color:#aaa;color:#888;cursor:not-allowed;}
 .parent-section{background:white;border-radius:12px;padding:14px;margin-bottom:12px;border:2px solid #e0e0e0;box-shadow:0 2px 0 #e0e0e0;}
 .parent-section h3{font-size:0.85rem;font-weight:900;color:#333;margin-bottom:10px;}
 .manage-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f0f0;}
@@ -259,6 +281,8 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
     <div class="panel" id="panel-rewards">
       <div class="section-title">🎁 What can you save for?</div>
       <div id="rewardsList"></div>
+      <div class="section-title" style="margin-top:14px">🎨 Avatar Collection</div>
+      <div id="avatarGrid" class="avatar-grid"></div>
     </div>
 
     <!-- HISTORY -->
@@ -288,6 +312,13 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
         <h3>🎯 Behaviours</h3>
         <div id="manageBehaviours"></div>
         <button class="add-btn" onclick="openBehaviourModal()">+ Add Behaviour</button>
+      </div>
+
+      <!-- Avatars -->
+      <div class="parent-section">
+        <h3>🎨 Avatars</h3>
+        <div id="manageAvatars"></div>
+        <button class="add-btn" onclick="openAvatarModal()">+ Add Avatar</button>
       </div>
 
       <!-- Rewards -->
@@ -454,6 +485,44 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
   </div>
 </div>
 
+<!-- Avatar modal -->
+<div class="modal-overlay" id="avatarModal">
+  <div class="modal">
+    <h3 id="avatarModalTitle">Add Avatar</h3>
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="avName" placeholder="e.g. Space Explorer"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Cost (⭐)</label>
+        <input type="number" id="avCost" min="1" value="10"/>
+      </div>
+      <div class="form-group">
+        <label>Tier</label>
+        <select id="avTier">
+          <option value="common">Common</option>
+          <option value="rare">Rare</option>
+          <option value="legendary">Legendary</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Image</label>
+      <div class="img-upload-area">
+        <input type="file" accept="image/*" capture="environment" id="avImageFile" onchange="handleAvatarImageSelect(event)"/>
+        <img id="avImagePreview" class="img-preview" style="display:none;border-radius:50%;"/>
+        <p id="avUploadText">📷 Tap to upload avatar image</p>
+      </div>
+    </div>
+    <div class="modal-error" id="avatarError"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('avatarModal')">Cancel</button>
+      <button class="btn-save" onclick="saveAvatar()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Reset modal -->
 <div class="modal-overlay" id="resetModal">
   <div class="modal">
@@ -484,7 +553,8 @@ let timeoutTimer = null;
 // ── APP STATE ─────────────────────────────────────
 let profiles = [], behaviours = [], rewards = [], history = [];
 let balance = 0, windows = [], selfClaims = [], lastGiven = {};
-let editingBehaviourId = null, editingRewardId = null;
+let avatars = [], unlockedAvatarIds = [];
+let editingAvatarId = null, pendingAvatarBase64 = null;let editingBehaviourId = null, editingRewardId = null;
 let editingProfileId = null, editingWindowId = null;
 let pendingImageBase64 = null;
 
@@ -507,13 +577,15 @@ async function loadProfiles() {
   profiles = await sb('profiles?select=*&order=created_at.asc') || [];
 }
 async function loadProfileData(pid) {
-  const [stateRows, bRows, rRows, hRows, wRows, cRows] = await Promise.all([
+  const [stateRows, bRows, rRows, hRows, wRows, cRows, avRows, unlRows] = await Promise.all([
     sb(`child_state?profile_id=eq.${pid}&select=balance&limit=1`),
     sb(`behaviours?profile_id=eq.${pid}&select=*&order=created_at.asc`),
     sb(`rewards?profile_id=eq.${pid}&select=*&order=cost.asc`),
     sb(`history?profile_id=eq.${pid}&select=*&order=created_at.desc&limit=50`),
     sb(`time_windows?profile_id=eq.${pid}&select=*&order=start_hour.asc`),
-    sb(`self_claims?profile_id=eq.${pid}&select=*`)
+    sb(`self_claims?profile_id=eq.${pid}&select=*`),
+    sb(`avatars?profile_id=eq.${pid}&select=*&order=cost.asc`),
+    sb(`unlocked_avatars?profile_id=eq.${pid}&select=avatar_id`)
   ]);
   balance = stateRows?.[0]?.balance ?? 0;
   behaviours = bRows || [];
@@ -522,6 +594,8 @@ async function loadProfileData(pid) {
     time: new Date(r.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }));
   windows = wRows || [];
   selfClaims = cRows || [];
+  avatars = avRows || [];
+  unlockedAvatarIds = (unlRows || []).map(r => r.avatar_id);
   // build lastGiven map: behaviour description → most recent earn timestamp
   lastGiven = {};
   for (const h of (hRows || [])) {
@@ -921,6 +995,137 @@ async function deleteWindow(id) {
   render(); showToast('Deleted', 'spend');
 }
 
+function renderAvatarGrid() {
+  const el = document.getElementById('avatarGrid');
+  if (!avatars.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">No avatars yet — ask a parent to add some!</div>'; return; }
+  const activeAvatar = session.profile?.avatar;
+  el.innerHTML = avatars.map(av => {
+    const unlocked = unlockedAvatarIds.includes(av.id);
+    const isActive = unlocked && activeAvatar === av.image_url;
+    const canAfford = balance >= av.cost;
+    const tierLabel = av.tier.charAt(0).toUpperCase() + av.tier.slice(1);
+    if (unlocked) {
+      return `<div class="avatar-card ${isActive?'active-avatar':''}" onclick="setAvatar(${av.id})">
+        ${isActive ? '<div class="avatar-active-badge">✓ Active</div>' : ''}
+        <img src="${av.image_url}" onerror="this.style.display='none'"/>
+        <div class="avatar-name">${av.name}</div>
+        <div class="avatar-tier ${av.tier}">${tierLabel}</div>
+      </div>`;
+    } else {
+      return `<div class="avatar-card locked">
+        <div class="avatar-lock-icon">🔒</div>
+        <img src="${av.image_url}" onerror="this.style.display='none'"/>
+        <div class="avatar-name">${av.name}</div>
+        <div class="avatar-tier ${av.tier}">${tierLabel}</div>
+        <div class="avatar-cost">${av.cost} ⭐</div>
+        <button class="unlock-btn" ${canAfford?'':'disabled'} onclick="unlockAvatar(${av.id})">
+          ${canAfford ? 'Unlock! 🎉' : `Need ${av.cost - balance} more ⭐`}
+        </button>
+      </div>`;
+    }
+  }).join('');
+}
+
+async function unlockAvatar(id) {
+  const av = avatars.find(x => x.id === id);
+  if (!av || balance < av.cost) return;
+  await transact(`🎨 Unlocked avatar: ${av.name}`, av.cost, 'spend');
+  if (USE_SUPABASE) {
+    const row = await sb('unlocked_avatars', { method:'POST',
+      body: JSON.stringify({ profile_id: session.profile.id, avatar_id: id }) });
+    unlockedAvatarIds.push(id);
+  } else {
+    unlockedAvatarIds.push(id);
+  }
+  renderAvatarGrid();
+  showToast(`🎨 Avatar unlocked!`, '');
+}
+
+async function setAvatar(id) {
+  const av = avatars.find(x => x.id === id);
+  if (!av || !unlockedAvatarIds.includes(id)) return;
+  if (USE_SUPABASE) {
+    await sb(`profiles?id=eq.${session.profile.id}`, { method:'PATCH', body: JSON.stringify({ avatar: av.image_url }) });
+  }
+  session.profile.avatar = av.image_url;
+  const idx = profiles.findIndex(x => x.id === session.profile.id);
+  if (idx >= 0) profiles[idx].avatar = av.image_url;
+  applyProfileTheme();
+  renderAvatarGrid();
+  renderLoginScreen();
+  showToast(`🎨 Avatar set!`, '');
+}
+
+// ── AVATAR CRUD (parent) ──────────────────────────
+function openAvatarModal(id = null) {
+  editingAvatarId = id; pendingAvatarBase64 = null;
+  document.getElementById('avatarModalTitle').textContent = id ? 'Edit Avatar' : 'Add Avatar';
+  document.getElementById('avatarError').textContent = '';
+  document.getElementById('avImagePreview').style.display = 'none';
+  document.getElementById('avUploadText').style.display = 'block';
+  document.getElementById('avImageFile').value = '';
+  if (id) {
+    const av = avatars.find(x => x.id === id);
+    document.getElementById('avName').value = av.name;
+    document.getElementById('avCost').value = av.cost;
+    document.getElementById('avTier').value = av.tier;
+    if (av.image_url) {
+      document.getElementById('avImagePreview').src = av.image_url;
+      document.getElementById('avImagePreview').style.display = 'block';
+      document.getElementById('avUploadText').style.display = 'none';
+    }
+  } else {
+    document.getElementById('avName').value = '';
+    document.getElementById('avCost').value = 10;
+    document.getElementById('avTier').value = 'common';
+  }
+  openModal('avatarModal');
+}
+function handleAvatarImageSelect(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingAvatarBase64 = ev.target.result;
+    document.getElementById('avImagePreview').src = pendingAvatarBase64;
+    document.getElementById('avImagePreview').style.display = 'block';
+    document.getElementById('avUploadText').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+async function saveAvatar() {
+  const name = document.getElementById('avName').value.trim();
+  const cost = parseInt(document.getElementById('avCost').value);
+  const tier = document.getElementById('avTier').value;
+  if (!name) { document.getElementById('avatarError').textContent = 'Please add a name.'; return; }
+  let image_url = editingAvatarId ? (avatars.find(x => x.id === editingAvatarId)?.image_url || '') : '';
+  if (pendingAvatarBase64) image_url = pendingAvatarBase64;
+  if (!image_url) { document.getElementById('avatarError').textContent = 'Please upload an image.'; return; }
+  const data = { name, cost, tier, image_url, profile_id: session.profile.id };
+  if (USE_SUPABASE) {
+    if (editingAvatarId) {
+      await sb(`avatars?id=eq.${editingAvatarId}`, { method:'PATCH', body: JSON.stringify({ name, cost, tier, image_url }) });
+      const idx = avatars.findIndex(x => x.id === editingAvatarId);
+      avatars[idx] = { ...avatars[idx], name, cost, tier, image_url };
+    } else {
+      const rows = await sb('avatars', { method:'POST', body: JSON.stringify(data) });
+      avatars.push(rows[0]);
+    }
+  } else {
+    if (editingAvatarId) {
+      const idx = avatars.findIndex(x => x.id === editingAvatarId);
+      avatars[idx] = { ...avatars[idx], name, cost, tier, image_url };
+    } else { avatars.push({ ...data, id: Date.now() }); }
+  }
+  closeModal('avatarModal'); renderAvatarGrid(); renderParentPanel(); showToast('Avatar saved ✓', '');
+}
+async function deleteAvatar(id) {
+  if (!confirm('Delete this avatar?')) return;
+  if (USE_SUPABASE) await sbDel(`avatars?id=eq.${id}`);
+  avatars = avatars.filter(x => x.id !== id);
+  unlockedAvatarIds = unlockedAvatarIds.filter(x => x !== id);
+  renderAvatarGrid(); renderParentPanel(); showToast('Deleted', 'spend');
+}
+
 // ── SWITCH PARENT PROFILE ─────────────────────────
 async function switchParentProfile(id) {
   if (id === session.profile.id) return;
@@ -1025,6 +1230,9 @@ function render() {
       </div>
     </div>`).join('') : `<div class="empty">No stars yet — let's go ${session.profile?.name}! ⭐</div>`;
 
+  // avatars
+  renderAvatarGrid();
+
   // parent panel
   if (isParent) renderParentPanel();
 }
@@ -1074,6 +1282,18 @@ function renderParentPanel() {
         <button class="del-btn" onclick="deleteProfile(${p.id})">Del</button>
       </div>
     </div>`).join('');
+
+  document.getElementById('manageAvatars').innerHTML = avatars.length ? avatars.map(av =>
+    `<div class="manage-item">
+      <img src="${av.image_url}" class="manage-img" style="border-radius:50%"/>
+      <div class="manage-text">${av.name}<br>
+        <span class="manage-sub">${av.cost} ⭐ · <span class="avatar-tier ${av.tier}">${av.tier}</span></span>
+      </div>
+      <div class="manage-btns">
+        <button class="edit-btn" onclick="openAvatarModal(${av.id})">Edit</button>
+        <button class="del-btn" onclick="deleteAvatar(${av.id})">Del</button>
+      </div>
+    </div>`).join('') : '<div class="empty">No avatars yet</div>';
 
   document.getElementById('manageBehaviours').innerHTML = behaviours.map(b =>
     `<div class="manage-item">
