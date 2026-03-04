@@ -3,121 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Louis – TRMNL Display</title>
+<title>Star Bank – TRMNL</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Nunito', sans-serif;
-  background: #ffffff;
-  color: #000000;
+  background: #fff;
+  color: #000;
   width: 800px;
   height: 480px;
   overflow: hidden;
-  padding: 20px;
+  padding: 18px 20px;
 }
+
+/* ── ERROR STATE ── */
+.error-screen {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; text-align: center; gap: 12px;
+}
+.error-screen h2 { font-size: 1.4rem; font-weight: 900; }
+.error-screen p { font-size: 0.85rem; color: #555; font-weight: 700; max-width: 480px; line-height: 1.5; }
+.error-screen code { background: #f0f0f0; padding: 4px 10px; border-radius: 6px; font-size: 0.82rem; }
+
+/* ── LAYOUT ── */
 .grid {
   display: grid;
-  grid-template-columns: 220px 1fr 200px;
-  grid-template-rows: auto 1fr;
-  gap: 16px;
+  grid-template-columns: 210px 1fr 195px;
+  grid-template-rows: 56px 1fr;
+  gap: 0 18px;
   height: 100%;
 }
+
+/* ── HEADER ── */
 .header {
   grid-column: 1 / -1;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   border-bottom: 3px solid #000;
   padding-bottom: 10px;
+  margin-bottom: 14px;
 }
-.header-title { font-size: 1.5rem; font-weight: 900; letter-spacing: 1px; }
-.header-sub { font-size: 0.75rem; color: #555; font-weight: 700; }
-.header-time { font-size: 0.72rem; color: #777; text-align: right; font-weight: 700; }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-avatar { font-size: 1.8rem; line-height: 1; }
+.header-avatar-img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #000; }
+.header-name { font-size: 1.4rem; font-weight: 900; letter-spacing: 0.5px; }
+.header-sub { font-size: 0.72rem; color: #555; font-weight: 700; margin-top: 1px; }
+.header-time { font-size: 0.68rem; color: #777; font-weight: 700; text-align: right; line-height: 1.5; }
 
+/* ── LEFT: BALANCE ── */
 .col-balance {
   border-right: 2px solid #ddd;
   padding-right: 16px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   text-align: center;
 }
-.balance-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #555; }
-.balance-number { font-size: 5rem; font-weight: 900; line-height: 1; margin: 6px 0 4px; }
-.balance-unit { font-size: 0.85rem; font-weight: 800; color: #333; margin-bottom: 14px; }
-.bricks { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin-bottom: 10px; }
-.brick { width: 18px; height: 12px; background: #000; border-radius: 2px; }
-.brick.empty { background: #eee; border: 1px solid #ccc; }
-.next-label { font-size: 0.68rem; font-weight: 800; text-transform: uppercase; color: #777; margin-bottom: 3px; }
-.next-reward { font-size: 0.8rem; font-weight: 800; }
-.next-gap { font-size: 0.72rem; color: #555; }
+.bal-label { font-size: 0.62rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #666; }
+.bal-number { font-size: 5.2rem; font-weight: 900; line-height: 1; margin: 4px 0; }
+.bal-unit { font-size: 0.78rem; font-weight: 800; color: #444; margin-bottom: 12px; }
 
-.col-earn { padding: 0 8px; overflow: hidden; }
-.section-title { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
-  color: #555; margin-bottom: 6px; border-bottom: 1.5px solid #eee; padding-bottom: 3px; }
-.behaviour { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
-.b-emoji { font-size: 0.95rem; width: 22px; text-align: center; }
-.b-text { font-size: 0.75rem; font-weight: 700; flex: 1; }
-.b-worth { font-size: 0.7rem; font-weight: 800; color: #333; white-space: nowrap; }
+.bricks { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; margin-bottom: 12px; max-width: 180px; }
+.brick { width: 16px; height: 11px; border-radius: 2px; border-bottom: 2px solid rgba(0,0,0,.25); }
+.brick.filled { background: #000; }
+.brick.empty { background: #f0f0f0; border: 1px solid #ddd; border-bottom: 2px solid #ccc; }
+
+.next-label { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; color: #888; margin-bottom: 3px; }
+.next-name { font-size: 0.78rem; font-weight: 800; }
+.next-gap { font-size: 0.68rem; color: #555; margin-top: 2px; }
+
+/* ── MIDDLE: EARN ── */
+.col-earn {
+  padding: 0 4px;
+  overflow: hidden;
+}
+.sec-title {
+  font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px;
+  color: #666; margin-bottom: 5px; padding-bottom: 3px; border-bottom: 1.5px solid #eee;
+}
+.b-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.b-emoji { font-size: 0.9rem; width: 20px; text-align: center; flex-shrink: 0; }
+.b-text { font-size: 0.72rem; font-weight: 700; flex: 1; line-height: 1.2; }
+.b-worth { font-size: 0.65rem; font-weight: 900; white-space: nowrap; }
 .b-worth::before { content: '+'; }
+.sec-gap { margin-top: 8px; }
 
-.col-rewards { border-left: 2px solid #ddd; padding-left: 16px; overflow: hidden; }
-.reward { margin-bottom: 10px; }
-.reward-top { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
-.r-emoji { font-size: 0.95rem; }
-.r-img { width: 20px; height: 20px; border-radius: 4px; object-fit: cover; }
-.r-name { font-size: 0.75rem; font-weight: 800; flex: 1; }
-.r-cost { font-size: 0.7rem; font-weight: 800; color: #333; white-space: nowrap; }
-.r-bar-bg { background: #eee; border-radius: 99px; height: 6px; overflow: hidden; border: 1px solid #ccc; }
+/* ── RIGHT: REWARDS ── */
+.col-rewards {
+  border-left: 2px solid #ddd;
+  padding-left: 16px;
+  overflow: hidden;
+}
+.r-item { margin-bottom: 9px; }
+.r-top { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+.r-icon { font-size: 0.9rem; flex-shrink: 0; }
+.r-icon-img { width: 18px; height: 18px; border-radius: 3px; object-fit: cover; flex-shrink: 0; }
+.r-name { font-size: 0.72rem; font-weight: 800; flex: 1; line-height: 1.2; }
+.r-cost { font-size: 0.65rem; font-weight: 900; white-space: nowrap; }
+.r-bar-bg { background: #eee; border-radius: 99px; height: 5px; overflow: hidden; border: 1px solid #ddd; }
 .r-bar-fill { height: 100%; background: #000; border-radius: 99px; }
-.r-pct { font-size: 0.62rem; color: #888; text-align: right; font-weight: 700; margin-top: 1px; }
-.r-ready { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+.r-pct { font-size: 0.58rem; color: #999; text-align: right; font-weight: 700; margin-top: 1px; }
+.r-ready { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+
 .loading { font-size: 0.75rem; color: #aaa; font-weight: 700; }
 </style>
 </head>
 <body>
 
-<div class="grid">
+<div id="errorScreen" class="error-screen" style="display:none">
+  <h2>⚠️ Profile not found</h2>
+  <p>Make sure you're passing a valid profile ID in the URL, e.g.:</p>
+  <code>https://your-app.vercel.app/trmnl.html?profile=1</code>
+  <p>Check Supabase to confirm the profile ID, or check that <code>config.js</code> credentials are correct.</p>
+</div>
+
+<div id="mainGrid" class="grid" style="display:none">
+
+  <!-- HEADER -->
   <div class="header">
-    <div>
-      <div class="header-title">⭐ Louis's Star Bank</div>
-      <div class="header-sub">Save up or cash in — it's your choice!</div>
+    <div class="header-left">
+      <div id="hAvatar"></div>
+      <div>
+        <div class="header-name" id="hName">—</div>
+        <div class="header-sub">Star Bank · Save up or cash in!</div>
+      </div>
     </div>
-    <div class="header-time" id="headerTime"></div>
+    <div class="header-time" id="hTime"></div>
   </div>
 
+  <!-- BALANCE -->
   <div class="col-balance">
-    <div class="balance-label">Current Balance</div>
-    <div class="balance-number" id="balanceNum">—</div>
-    <div class="balance-unit">Stars ⭐</div>
-    <div class="bricks" id="brickDisplay"></div>
+    <div class="bal-label">Balance</div>
+    <div class="bal-number" id="balNum">—</div>
+    <div class="bal-unit">Stars ⭐</div>
+    <div class="bricks" id="brickRow"></div>
     <div class="next-label">Next reward</div>
-    <div class="next-reward" id="nextReward">—</div>
+    <div class="next-name" id="nextName">—</div>
     <div class="next-gap" id="nextGap"></div>
   </div>
 
+  <!-- EARN -->
   <div class="col-earn">
-    <div class="section-title">Ways to earn ⭐</div>
-    <div id="behaviourList"><div class="loading">Loading...</div></div>
-    <div class="section-title" style="margin-top:10px;">Louis can claim</div>
-    <div id="selfList"><div class="loading">Loading...</div></div>
+    <div class="sec-title">Ways to earn ⭐</div>
+    <div id="parentList"><div class="loading">Loading…</div></div>
+    <div class="sec-title sec-gap">Louis can claim</div>
+    <div id="selfList"><div class="loading">Loading…</div></div>
   </div>
 
+  <!-- REWARDS -->
   <div class="col-rewards">
-    <div class="section-title">Rewards 🎁</div>
-    <div id="rewardList"><div class="loading">Loading...</div></div>
+    <div class="sec-title">Rewards 🎁</div>
+    <div id="rewardList"><div class="loading">Loading…</div></div>
   </div>
+
 </div>
 
 <script src="/config.js"></script>
 <script>
 const USE_SUPABASE = typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 
-let balance = 0, behaviours = [], rewards = [];
+// ── GET PROFILE ID FROM URL ───────────────────────
+const params = new URLSearchParams(window.location.search);
+const PROFILE_ID = parseInt(params.get('profile'));
 
-async function sbFetch(path) {
+let balance = 0, profile = null, behaviours = [], rewards = [], windows = [];
+
+// ── FETCH ─────────────────────────────────────────
+async function sbGet(path) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
   });
@@ -126,86 +181,112 @@ async function sbFetch(path) {
 }
 
 async function loadAll() {
-  const [stateRows, bRows, rRows] = await Promise.all([
-    sbFetch('louis_state?select=balance&limit=1'),
-    sbFetch('louis_behaviours?select=*&order=created_at.asc'),
-    sbFetch('louis_rewards?select=*&order=cost.asc')
+  if (!PROFILE_ID || isNaN(PROFILE_ID)) throw new Error('No profile ID in URL');
+  const [profiles, stateRows, bRows, rRows, wRows] = await Promise.all([
+    sbGet(`profiles?id=eq.${PROFILE_ID}&select=*&limit=1`),
+    sbGet(`child_state?profile_id=eq.${PROFILE_ID}&select=balance&limit=1`),
+    sbGet(`behaviours?profile_id=eq.${PROFILE_ID}&select=*&order=created_at.asc`),
+    sbGet(`rewards?profile_id=eq.${PROFILE_ID}&select=*&order=cost.asc`),
+    sbGet(`time_windows?profile_id=eq.${PROFILE_ID}&select=*&order=start_hour.asc`)
   ]);
-  balance = stateRows?.[0]?.balance ?? 0;
+  if (!profiles?.length) throw new Error('Profile not found');
+  profile   = profiles[0];
+  balance   = stateRows?.[0]?.balance ?? 0;
   behaviours = bRows || [];
-  rewards = rRows || [];
+  rewards   = rRows || [];
+  windows   = wRows || [];
 }
 
-function render() {
-  document.getElementById('balanceNum').textContent = balance;
+// ── WINDOW HELPER ─────────────────────────────────
+function currentWindow() {
+  const h = new Date().getHours();
+  return windows.find(w => h >= w.start_hour && h < w.end_hour) || null;
+}
 
-  // bricks
-  const bEl = document.getElementById('brickDisplay');
-  const slots = 20; bEl.innerHTML = '';
-  for (let i = 0; i < slots; i++) {
+// ── RENDER ────────────────────────────────────────
+function render() {
+  // header
+  const isImgAvatar = profile.avatar?.startsWith('data:');
+  document.getElementById('hAvatar').innerHTML = isImgAvatar
+    ? `<img src="${profile.avatar}" class="header-avatar-img"/>`
+    : `<div class="header-avatar">${profile.avatar || '⭐'}</div>`;
+  document.getElementById('hName').textContent = `${profile.name}'s Star Bank`;
+
+  const now = new Date();
+  const win = currentWindow();
+  document.getElementById('hTime').innerHTML =
+    `Last updated: ${now.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}<br>` +
+    (win ? `✓ Earn window open: ${win.label}` : '✗ No earn window active');
+
+  // balance
+  document.getElementById('balNum').textContent = balance;
+
+  // bricks (20 slots)
+  const brickEl = document.getElementById('brickRow');
+  brickEl.innerHTML = '';
+  for (let i = 0; i < 20; i++) {
     const d = document.createElement('div');
-    d.className = 'brick' + (i < balance ? '' : ' empty');
-    bEl.appendChild(d);
+    d.className = 'brick ' + (i < balance ? 'filled' : 'empty');
+    brickEl.appendChild(d);
   }
 
   // next reward
   const next = rewards.find(r => r.cost > balance);
   if (next) {
-    document.getElementById('nextReward').textContent = next.emoji + ' ' + next.name;
+    document.getElementById('nextName').textContent = next.emoji + ' ' + next.name;
     document.getElementById('nextGap').textContent = (next.cost - balance) + ' more ⭐ to go!';
   } else if (rewards.length) {
-    document.getElementById('nextReward').textContent = '🏆 You can claim anything!';
+    document.getElementById('nextName').textContent = '🏆 Everything unlocked!';
     document.getElementById('nextGap').textContent = '';
   }
 
-  // behaviours
-  const parentB = behaviours.filter(b => b.type === 'parent').slice(0, 5);
+  // update child earn section label
+  const selfTitle = document.querySelector('.sec-title.sec-gap');
+  if (selfTitle) selfTitle.textContent = `${profile.name} can claim`;
+
+  // behaviours — parent & bonus types shown, self capped to 5
+  const parentB = behaviours.filter(b => b.type === 'parent' || b.type === 'bonus').slice(0, 6);
   const selfB   = behaviours.filter(b => b.type === 'self').slice(0, 4);
 
-  document.getElementById('behaviourList').innerHTML = parentB.map(b => `
-    <div class="behaviour">
-      <div class="b-emoji">${b.emoji}</div>
-      <div class="b-text">${b.description}</div>
-      <div class="b-worth">${b.worth} ⭐</div>
-    </div>`).join('') || '<div class="loading">None yet</div>';
+  const renderBList = (el, list) => {
+    el.innerHTML = list.length ? list.map(b =>
+      `<div class="b-row">
+        <div class="b-emoji">${b.emoji}</div>
+        <div class="b-text">${b.description}</div>
+        <div class="b-worth">${b.worth} ⭐</div>
+      </div>`).join('') : '<div class="loading">None set</div>';
+  };
+  renderBList(document.getElementById('parentList'), parentB);
+  renderBList(document.getElementById('selfList'), selfB);
 
-  document.getElementById('selfList').innerHTML = selfB.map(b => `
-    <div class="behaviour">
-      <div class="b-emoji">${b.emoji}</div>
-      <div class="b-text">${b.description}</div>
-      <div class="b-worth">${b.worth} ⭐</div>
-    </div>`).join('') || '<div class="loading">None yet</div>';
-
-  // rewards
+  // rewards (up to 6)
   document.getElementById('rewardList').innerHTML = rewards.slice(0, 6).map(r => {
     const pct = Math.min(100, Math.round((balance / r.cost) * 100));
     const ready = balance >= r.cost;
     const icon = r.image_url
-      ? `<img src="${r.image_url}" class="r-img" onerror="this.style.display='none'"/>`
-      : `<span class="r-emoji">${r.emoji}</span>`;
-    return `<div class="reward">
-      <div class="reward-top">
-        ${icon}
-        <div class="r-name">${r.name}</div>
-        <div class="r-cost">${r.cost}⭐</div>
-      </div>
+      ? `<img src="${r.image_url}" class="r-icon-img" onerror="this.style.display='none'"/>`
+      : `<span class="r-icon">${r.emoji}</span>`;
+    return `<div class="r-item">
+      <div class="r-top">${icon}<div class="r-name">${r.name}</div><div class="r-cost">${r.cost}⭐</div></div>
       ${ready
         ? `<div class="r-ready">✓ Ready to claim!</div>`
         : `<div class="r-bar-bg"><div class="r-bar-fill" style="width:${pct}%"></div></div>
-           <div class="r-pct">${pct}%</div>`
-      }
+           <div class="r-pct">${pct}% there</div>`}
     </div>`;
-  }).join('') || '<div class="loading">None yet</div>';
-
-  document.getElementById('headerTime').textContent = 'Last updated: ' +
-    new Date().toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+  }).join('') || '<div class="loading">None set</div>';
 }
 
+// ── INIT ──────────────────────────────────────────
 async function init() {
-  if (USE_SUPABASE) {
-    try { await loadAll(); } catch(e) { console.error('TRMNL load failed:', e); }
+  try {
+    if (!USE_SUPABASE) throw new Error('Supabase not configured');
+    await loadAll();
+    document.getElementById('mainGrid').style.display = 'grid';
+    render();
+  } catch(e) {
+    console.error('TRMNL error:', e);
+    document.getElementById('errorScreen').style.display = 'flex';
   }
-  render();
 }
 
 init();
