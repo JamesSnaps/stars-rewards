@@ -166,8 +166,16 @@ body {
 const USE_SUPABASE = typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL';
 
 // ── GET PROFILE ID FROM URL ───────────────────────
-const params = new URLSearchParams(window.location.search);
-const PROFILE_ID = parseInt(params.get('profile'));
+// ═══════════════════════════════════════════════════
+//  PROFILE CONFIG — set this to the child's profile ID
+//  Check your Supabase profiles table for the correct ID
+// ═══════════════════════════════════════════════════
+const PROFILE_ID = 1;
+// ═══════════════════════════════════════════════════
+
+// Still support ?profile= override for testing in browser
+const urlParam = parseInt(new URLSearchParams(window.location.search).get('profile'));
+const ACTIVE_PROFILE_ID = urlParam || PROFILE_ID;
 
 let balance = 0, profile = null, behaviours = [], rewards = [], windows = [];
 
@@ -181,13 +189,13 @@ async function sbGet(path) {
 }
 
 async function loadAll() {
-  if (!PROFILE_ID || isNaN(PROFILE_ID)) throw new Error('No profile ID in URL');
+  if (!ACTIVE_PROFILE_ID || isNaN(ACTIVE_PROFILE_ID)) throw new Error('No profile ID configured');
   const [profiles, stateRows, bRows, rRows, wRows] = await Promise.all([
-    sbGet(`profiles?id=eq.${PROFILE_ID}&select=*&limit=1`),
-    sbGet(`child_state?profile_id=eq.${PROFILE_ID}&select=balance&limit=1`),
-    sbGet(`behaviours?profile_id=eq.${PROFILE_ID}&select=*&order=created_at.asc`),
-    sbGet(`rewards?profile_id=eq.${PROFILE_ID}&select=*&order=cost.asc`),
-    sbGet(`time_windows?profile_id=eq.${PROFILE_ID}&select=*&order=start_hour.asc`)
+    sbGet(`profiles?id=eq.${ACTIVE_PROFILE_ID}&select=*&limit=1`),
+    sbGet(`child_state?profile_id=eq.${ACTIVE_PROFILE_ID}&select=balance&limit=1`),
+    sbGet(`behaviours?profile_id=eq.${ACTIVE_PROFILE_ID}&select=*&order=created_at.asc`),
+    sbGet(`rewards?profile_id=eq.${ACTIVE_PROFILE_ID}&select=*&order=cost.asc`),
+    sbGet(`time_windows?profile_id=eq.${ACTIVE_PROFILE_ID}&select=*&order=start_hour.asc`)
   ]);
   if (!profiles?.length) throw new Error('Profile not found');
   profile   = profiles[0];
