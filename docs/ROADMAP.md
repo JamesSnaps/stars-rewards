@@ -30,7 +30,7 @@
   - Add optional weekly limits for repeat rewards such as screen time.
 
 - Celebration layer
-  - Add stronger milestone feedback with richer animations, badges, and unlock moments.
+  - [x] Add stronger milestone feedback with richer animations, badges, and unlock moments.
 
 - Better parent controls
   - Add reward-request notes like "delivered" or "planned for Saturday".

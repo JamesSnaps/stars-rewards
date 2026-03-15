@@ -84,8 +84,9 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 
 .panel{display:none;}.panel.active{display:block;}
 .section-title{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#888;margin:12px 0 6px;}
+#parentBehaviours,#selfBehaviours,#bonusBehaviours{display:grid;grid-template-columns:1fr;gap:10px;}
 
-.behaviour-item{background:white;border-radius:10px;padding:11px 12px;margin-bottom:7px;
+.behaviour-item{background:white;border-radius:10px;padding:11px 12px;margin-bottom:0;min-height:84px;
   border:2px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:0 2px 0 #e0e0e0;}
 .behaviour-left{display:flex;align-items:center;gap:9px;flex:1;}
 .behaviour-emoji{font-size:1.3rem;width:28px;text-align:center;}
@@ -136,6 +137,57 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 .featured-meta{font-size:0.75rem;color:rgba(0,0,0,.55);font-weight:800;margin-top:2px;}
 .featured-progress{margin-top:10px;}
 .featured-status{font-size:0.72rem;font-weight:800;color:#555;margin-top:5px;line-height:1.35;}
+.reward-pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 9px;
+  font-size:0.62rem;font-weight:900;letter-spacing:.4px;text-transform:uppercase;margin-bottom:6px;}
+.reward-pill.unlocked{background:#fff4c9;color:#9a6400;}
+.reward-pill.just-unlocked{background:#e8f5e9;color:#0b7a43;animation:badgePulse 1.8s ease-in-out infinite;}
+.reward-pill.next-up{background:#e8f0fe;color:var(--blue);}
+.reward-item.unlocked-highlight,.featured-reward.unlocked-highlight{
+  border-color:#8dd7aa;box-shadow:0 0 0 3px rgba(0,166,80,.14),0 6px 18px rgba(0,166,80,.15);
+  animation:rewardGlow 1.8s ease-in-out infinite;
+}
+.reward-item.target-highlight,.featured-reward.target-highlight{
+  border-color:#9dc8ff;box-shadow:0 0 0 3px rgba(0,108,183,.12),0 5px 16px rgba(0,108,183,.14);
+}
+
+.celebration-card{
+  position:relative;overflow:hidden;border-radius:14px;padding:14px 14px 12px;margin-bottom:12px;
+  border:3px solid rgba(0,0,0,.08);box-shadow:0 6px 0 rgba(0,0,0,.08);
+}
+.celebration-card.unlock{background:linear-gradient(135deg,#fff4bf,#ffe28a 55%,#ffd15b);}
+.celebration-card.progress{background:linear-gradient(135deg,#e9f5ff,#d7ecff 58%,#c4e1ff);}
+.celebration-card.complete{background:linear-gradient(135deg,#f5f1ff,#e8dbff 58%,#d9c1ff);}
+.celebration-card::after{
+  content:'';position:absolute;inset:auto -30% -45% auto;width:180px;height:180px;border-radius:50%;
+  background:rgba(255,255,255,.22);pointer-events:none;
+}
+.celebration-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.celebration-copy{position:relative;z-index:1;flex:1;}
+.celebration-badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 10px;
+  background:rgba(255,255,255,.72);font-size:0.64rem;font-weight:900;letter-spacing:.5px;text-transform:uppercase;
+  color:#7a5600;animation:badgePulse 1.8s ease-in-out infinite;}
+.celebration-card.progress .celebration-badge{color:#0a5f9d;}
+.celebration-card.complete .celebration-badge{color:#5a1f8e;}
+.celebration-title{font-size:1.05rem;font-weight:900;color:#222;line-height:1.15;margin-top:8px;}
+.celebration-sub{font-size:0.76rem;font-weight:800;color:rgba(0,0,0,.62);line-height:1.4;margin-top:4px;}
+.celebration-meta{font-size:0.72rem;font-weight:900;color:rgba(0,0,0,.55);margin-top:8px;}
+.celebration-stars{display:flex;align-items:center;gap:7px;padding-top:3px;position:relative;z-index:1;}
+.celebration-stars span{font-size:1.2rem;display:inline-block;animation:floatStar 2.2s ease-in-out infinite;}
+.celebration-stars span:nth-child(2){animation-delay:.24s;}
+.celebration-stars span:nth-child(3){animation-delay:.48s;}
+
+@keyframes badgePulse{
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-1px) scale(1.04);}
+}
+@keyframes floatStar{
+  0%,100%{transform:translateY(0) rotate(0deg);}
+  50%{transform:translateY(-6px) rotate(8deg);}
+}
+@keyframes rewardGlow{
+  0%,100%{transform:translateY(0);}
+  50%{transform:translateY(-2px);}
+}
 
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
 .stat-card{background:white;border-radius:12px;padding:12px;border:2px solid #e0e0e0;box-shadow:0 2px 0 #e0e0e0;}
@@ -307,12 +359,21 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
   .main{padding:18px;}
   .profile-grid{max-width:760px;}
   .profile-btn{width:160px;height:160px;}
+  .behaviour-item{padding:16px 18px;min-height:104px;}
+  .behaviour-emoji{font-size:1.6rem;width:36px;}
+  .behaviour-text{font-size:1rem;}
+  .behaviour-worth{font-size:0.8rem;}
+  .award-btn{padding:10px 16px;font-size:0.9rem;}
   .reward-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.8fr);align-items:start;}
 }
 
 @media (min-width: 920px){
   .earn-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.9fr);align-items:start;}
   .tabs{max-width:620px;margin-left:auto;margin-right:auto;}
+}
+
+@media (min-width: 1280px){
+  #parentBehaviours,#selfBehaviours,#bonusBehaviours{grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 </style>
 </head>
@@ -381,6 +442,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
             </div>
             <button class="bonus-clear hidden" id="bonusClearBtn" onclick="clearBonus()">Clear</button>
           </div>
+          <div id="celebrationPanel"></div>
           <div class="section-title" id="parentEarnTitle">🧑‍💼 Mummy / Daddy Awards</div>
           <div id="parentBehaviours"></div>
           <div class="section-title">🙋 I Can Claim</div>
@@ -401,6 +463,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
       <div class="reward-layout">
         <div class="reward-main">
           <div class="section-title">🎁 What can you save for?</div>
+          <div id="rewardSpotlight"></div>
           <div id="featuredRewardCard"></div>
           <div id="rewardsList"></div>
         </div>
@@ -814,6 +877,7 @@ let profiles = [], behaviours = [], rewards = [], history = [];
 let balance = 0, windows = [], selfClaims = [], lastGiven = {};
 let rewardRequests = [];
 let avatars = [], unlockedAvatarIds = [];
+let recentUnlockRewardIds = [];
 let editingAvatarId = null, pendingAvatarBase64 = null;
 let cooldownToken = null; // { id, reason, expires_at }
 let bonusToken = null; // { id, multiplier, expires_at }
@@ -872,6 +936,7 @@ async function loadProfileData(pid) {
   selfClaims = cRows || [];
   avatars = avRows || [];
   unlockedAvatarIds = (unlRows || []).map(r => r.avatar_id);
+  recentUnlockRewardIds = [];
   rewardRequests = reqRows || [];
   const cd = cdRows?.[0];
   cooldownToken = cd && new Date(cd.expires_at) > new Date() ? cd : null;
@@ -996,6 +1061,7 @@ async function loginAsParent() {
 function logout() {
   clearTimeout(timeoutTimer);
   session = { role: null, profile: null };
+  recentUnlockRewardIds = [];
   showScreen('loginScreen');
   renderLoginScreen();
 }
@@ -1085,8 +1151,8 @@ async function earn(id) {
   const multiplier = getEarnMultiplier();
   const amount = b.worth * multiplier;
   const desc = multiplier > 1 ? `${histKey} · ${multiplier}x bonus` : histKey;
-  await transact(desc, amount, 'earn');
-  showToast(`+${amount} ⭐ Amazing ${session.profile.name}!`, '');
+  const celebration = await transact(desc, amount, 'earn', { celebrateRewards: !desc.startsWith('↩️ Refund') });
+  showToast(getEarnToast(amount, celebration), '');
 }
 async function claim(id) {
   const r = rewards.find(x => x.id === id); if (!r || balance < r.cost) return;
@@ -1115,7 +1181,8 @@ async function claim(id) {
   render();
   showToast(`📝 ${r.name} requested for approval`, '');
 }
-async function transact(desc, amount, type) {
+async function transact(desc, amount, type, options = {}) {
+  const previousBalance = balance;
   const nb = type === 'earn' ? balance + amount : balance - amount;
   if (USE_SUPABASE) {
     await Promise.all([
@@ -1124,8 +1191,13 @@ async function transact(desc, amount, type) {
     ]);
   }
   balance = nb;
+  const celebration = type === 'earn' && options.celebrateRewards !== false
+    ? getEarnCelebration(previousBalance, nb)
+    : null;
+  recentUnlockRewardIds = celebration?.unlockedRewards?.map(r => r.id) || [];
   history.unshift({ desc, amount, type, time: now(), createdAt: new Date().toISOString() });
   render();
+  return celebration;
 }
 
 // ── PROFILE CRUD ──────────────────────────────────
@@ -1309,6 +1381,7 @@ async function saveReward() {
       rewards[idx] = { ...rewards[idx], emoji, name, cost, image_url, one_time, claimed };
     } else { rewards.push({ ...data, id: Date.now() }); }
   }
+  recentUnlockRewardIds = [];
   closeModal('rewardModal'); render(); showToast('Saved ✓', '');
 }
 async function deleteReward(id) {
@@ -1316,6 +1389,7 @@ async function deleteReward(id) {
   if (USE_SUPABASE) await sbDel(`rewards?id=eq.${id}`);
   rewards = rewards.filter(x => x.id !== id);
   rewardRequests = rewardRequests.filter(x => x.reward_id !== id);
+  recentUnlockRewardIds = recentUnlockRewardIds.filter(x => x !== id);
   render(); showToast('Deleted', 'spend');
 }
 
@@ -1669,6 +1743,7 @@ async function deleteHistory(idx) {
     } catch(e) { console.error(e); showToast('Delete failed', 'error'); return; }
   }
   balance = newBalance;
+  recentUnlockRewardIds = [];
   history.splice(idx, 1);
   render();
   showToast('Entry removed ✓', 'spend');
@@ -1683,6 +1758,7 @@ async function confirmReset() {
     ]);
   }
   balance = 0; history = []; selfClaims = [];
+  recentUnlockRewardIds = [];
   rewardRequests = rewardRequests.filter(r => r.status !== 'pending');
   closeModal('resetModal'); render(); showToast('Reset ✓', '');
 }
@@ -1702,12 +1778,14 @@ function render() {
   const isParent = session.role === 'parent';
   const visibleRewards = rewards.filter(r => !(r.one_time && r.claimed));
   const featuredReward = pickFeaturedReward(visibleRewards);
+  const rewardSpotlight = getRewardSpotlight(visibleRewards);
 
   // parent earn section
   document.getElementById('parentEarnTitle').style.display = isParent ? '' : 'none';
   document.getElementById('parentBehaviours').style.display = isParent ? '' : 'none';
   document.getElementById('bonusTitle').style.display = isParent ? '' : 'none';
   document.getElementById('bonusBehaviours').style.display = isParent ? '' : 'none';
+  document.getElementById('celebrationPanel').innerHTML = rewardSpotlight ? renderCelebrationCard(rewardSpotlight) : '';
 
   if (isParent) {
     renderBehaviourGroup('parentBehaviours', 'parent', true);
@@ -1717,8 +1795,9 @@ function render() {
   renderProgressCards();
 
   // rewards
-  document.getElementById('featuredRewardCard').innerHTML = featuredReward ? renderFeaturedReward(featuredReward) : '';
-  document.getElementById('rewardsList').innerHTML = visibleRewards.length ? renderRewardGroups(visibleRewards, featuredReward?.id) : '<div class="empty">No rewards yet</div>';
+  document.getElementById('rewardSpotlight').innerHTML = rewardSpotlight ? renderCelebrationCard(rewardSpotlight) : '';
+  document.getElementById('featuredRewardCard').innerHTML = featuredReward ? renderFeaturedReward(featuredReward, rewardSpotlight) : '';
+  document.getElementById('rewardsList').innerHTML = visibleRewards.length ? renderRewardGroups(visibleRewards, featuredReward?.id, rewardSpotlight) : '<div class="empty">No rewards yet</div>';
 
   // history
   document.getElementById('historyList').innerHTML = history.length ? history.slice(0, 30).map((h, i) =>
@@ -1902,6 +1981,60 @@ function getPendingRewardRequest(rewardId) {
   return rewardRequests.find(r => r.reward_id === rewardId && r.status === 'pending');
 }
 
+function getEarnCelebration(previousBalance, nextBalance) {
+  const visibleRewards = rewards.filter(r => !(r.one_time && r.claimed));
+  const unlockedRewards = visibleRewards.filter(r => previousBalance < r.cost && nextBalance >= r.cost);
+  const nextReward = visibleRewards.find(r => r.cost > nextBalance) || null;
+  return {
+    unlockedRewards,
+    nextReward,
+    remaining: nextReward ? nextReward.cost - nextBalance : 0
+  };
+}
+
+function getRewardSpotlight(visibleRewards = rewards.filter(r => !(r.one_time && r.claimed))) {
+  if (!session.profile || !visibleRewards.length) return null;
+  const unlockedRewards = visibleRewards.filter(r => recentUnlockRewardIds.includes(r.id) && balance >= r.cost);
+  if (unlockedRewards.length) {
+    const primary = unlockedRewards[0];
+    return {
+      type: 'unlock',
+      badge: unlockedRewards.length === 1 ? 'New reward unlocked' : 'New rewards unlocked',
+      title: unlockedRewards.length === 1 ? `${primary.emoji} ${primary.name}` : `${primary.emoji} ${primary.name} +${unlockedRewards.length - 1} more`,
+      copy: unlockedRewards.length === 1
+        ? `${session.profile.name} can request this reward now.`
+        : `${session.profile.name} just unlocked ${unlockedRewards.length} rewards.`,
+      meta: unlockedRewards.length === 1
+        ? `${primary.cost} ⭐ reward ready to request`
+        : `${unlockedRewards.map(r => `${r.emoji} ${r.name}`).join(' · ')}`,
+      rewardIds: unlockedRewards.map(r => r.id),
+      reward: primary
+    };
+  }
+  const nextReward = visibleRewards.find(r => r.cost > balance);
+  if (nextReward) {
+    const remaining = nextReward.cost - balance;
+    return {
+      type: 'progress',
+      badge: 'Next unlock',
+      title: `Only ${remaining} ⭐ to go`,
+      copy: `Great job ${session.profile.name}! ${remaining} more ⭐ until ${nextReward.emoji} ${nextReward.name}.`,
+      meta: `${nextReward.cost} ⭐ reward`,
+      rewardIds: [nextReward.id],
+      reward: nextReward,
+      remaining
+    };
+  }
+  return {
+    type: 'complete',
+    badge: 'Reward master',
+    title: 'Everything unlocked',
+    copy: `${session.profile.name} has enough stars for every reward on the board.`,
+    meta: `${visibleRewards.length} reward${visibleRewards.length === 1 ? '' : 's'} currently available`,
+    rewardIds: []
+  };
+}
+
 function getRewardBuckets(list) {
   return [
     { title: 'Quick Wins', sub: 'Small treats for fast motivation.', rewards: list.filter(r => r.cost <= 5) },
@@ -1922,6 +2055,48 @@ function pickFeaturedReward(list) {
   return list[hashSeed(seed) % list.length];
 }
 
+function renderCelebrationCard(spotlight) {
+  return `<div class="celebration-card ${spotlight.type}">
+    <div class="celebration-top">
+      <div class="celebration-copy">
+        <div class="celebration-badge">${spotlight.badge}</div>
+        <div class="celebration-title">${spotlight.title}</div>
+        <div class="celebration-sub">${spotlight.copy}</div>
+        <div class="celebration-meta">${spotlight.meta}</div>
+      </div>
+      <div class="celebration-stars" aria-hidden="true"><span>⭐</span><span>🎉</span><span>⭐</span></div>
+    </div>
+  </div>`;
+}
+
+function getRewardHighlight(reward, spotlight) {
+  const isPending = !!getPendingRewardRequest(reward.id);
+  if (spotlight?.type === 'unlock' && spotlight.rewardIds.includes(reward.id)) {
+    return { className: 'unlocked-highlight', pill: 'Just unlocked', pillClass: 'just-unlocked' };
+  }
+  if (spotlight?.type === 'progress' && spotlight.reward?.id === reward.id) {
+    return { className: 'target-highlight', pill: 'Next unlock', pillClass: 'next-up' };
+  }
+  if (!isPending && balance >= reward.cost) {
+    return { className: '', pill: 'Unlocked', pillClass: 'unlocked' };
+  }
+  return { className: '', pill: '', pillClass: '' };
+}
+
+function getEarnToast(amount, celebration) {
+  if (celebration?.unlockedRewards?.length) {
+    if (celebration.unlockedRewards.length === 1) {
+      const reward = celebration.unlockedRewards[0];
+      return `🎉 Great job ${session.profile.name}! ${reward.emoji} ${reward.name} is unlocked.`;
+    }
+    return `🎉 Great job ${session.profile.name}! ${celebration.unlockedRewards.length} rewards just unlocked.`;
+  }
+  if (celebration?.nextReward) {
+    return `⭐ Great job ${session.profile.name}! Only ${celebration.remaining} more until ${celebration.nextReward.emoji} ${celebration.nextReward.name}.`;
+  }
+  return `🏆 Great job ${session.profile.name}! Every reward is unlocked.`;
+}
+
 function renderRewardButton(reward) {
   const pending = getPendingRewardRequest(reward.id);
   if (session.role !== 'child') {
@@ -1932,9 +2107,10 @@ function renderRewardButton(reward) {
   return `<button class="claim-btn" disabled>${reward.cost - balance} more ⭐</button>`;
 }
 
-function renderFeaturedReward(reward) {
+function renderFeaturedReward(reward, spotlight) {
   const pct = Math.min(100, Math.round((balance / reward.cost) * 100));
   const pending = getPendingRewardRequest(reward.id);
+  const highlight = getRewardHighlight(reward, spotlight);
   const status = pending
     ? 'Waiting for a parent to approve this reward.'
     : balance >= reward.cost
@@ -1943,12 +2119,13 @@ function renderFeaturedReward(reward) {
   const icon = reward.image_url
     ? `<div class="featured-icon"><img src="${reward.image_url}" alt="${reward.name}"/></div>`
     : `<div class="featured-icon">${reward.emoji}</div>`;
-  return `<div class="featured-reward">
+  return `<div class="featured-reward ${highlight.className}">
     <div class="featured-kicker">Today&apos;s featured reward</div>
     <div class="featured-body">
       <div class="featured-left">
         ${icon}
         <div>
+          ${highlight.pill ? `<div class="reward-pill ${highlight.pillClass}">${highlight.pill}</div>` : ''}
           <div class="featured-name">${reward.name}</div>
           <div class="featured-meta">${reward.cost} ⭐${reward.one_time ? ' · one-time reward' : ''}</div>
         </div>
@@ -1962,16 +2139,17 @@ function renderFeaturedReward(reward) {
   </div>`;
 }
 
-function renderRewardItem(reward) {
+function renderRewardItem(reward, spotlight) {
   const pct = Math.min(100, Math.round((balance / reward.cost) * 100));
+  const highlight = getRewardHighlight(reward, spotlight);
   const img = reward.image_url
     ? `<img src="${reward.image_url}" class="reward-img" onerror="this.style.display='none'"/>`
     : `<div class="reward-emoji-lg">${reward.emoji}</div>`;
   const oneTimeLabel = reward.one_time ? '<div class="reward-cost">One-time reward</div>' : '';
-  return `<div class="reward-item">
+  return `<div class="reward-item ${highlight.className}">
     <div class="reward-top">
       <div class="reward-left">${img}
-        <div><div class="reward-name">${reward.name}</div><div class="reward-cost">${reward.cost} ⭐ needed</div>${oneTimeLabel}</div>
+        <div>${highlight.pill ? `<div class="reward-pill ${highlight.pillClass}">${highlight.pill}</div>` : ''}<div class="reward-name">${reward.name}</div><div class="reward-cost">${reward.cost} ⭐ needed</div>${oneTimeLabel}</div>
       </div>
       ${renderRewardButton(reward)}
     </div>
@@ -1980,9 +2158,9 @@ function renderRewardItem(reward) {
   </div>`;
 }
 
-function renderRewardGroups(list, featuredId) {
+function renderRewardGroups(list, featuredId, spotlight) {
   return getRewardBuckets(list).map(group => {
-    const items = group.rewards.filter(r => r.id !== featuredId).map(renderRewardItem).join('');
+    const items = group.rewards.filter(r => r.id !== featuredId).map(r => renderRewardItem(r, spotlight)).join('');
     if (!items) return '';
     return `<div class="reward-group">
       <div class="reward-group-title">${group.title}</div>
@@ -2117,7 +2295,7 @@ async function declineRewardRequest(id) {
   }
   request.status = 'declined';
   request.resolved_at = resolved_at;
-  await transact(`↩️ Refund: ${request.reward_name}`, request.cost, 'earn');
+  await transact(`↩️ Refund: ${request.reward_name}`, request.cost, 'earn', { celebrateRewards: false });
   showToast('Reward declined and stars refunded', 'spend');
 }
 
