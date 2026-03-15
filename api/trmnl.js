@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     const profile    = profileRows?.[0];
     const balance    = stateRows?.[0]?.balance ?? 0;
     const behaviours = bRows || [];
-    const rewards    = rRows || [];
+    const rewards    = (rRows || []).filter(r => !(r.one_time && r.claimed));
 
     if (!profile) throw new Error('Profile not found');
 

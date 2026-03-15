@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Star Bank</title>
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -14,7 +14,7 @@
 :root{--yellow:#FFD700;--orange:#FF6B00;--red:#E3000B;--blue:#006CB7;--green:#00A650;--dark:#1a1a2e;--purple:#7B2FBE;}
 body{font-family:'Nunito',sans-serif;background:var(--dark);
   background-image:radial-gradient(circle at 20% 20%,#16213e 0%,transparent 50%),radial-gradient(circle at 80% 80%,#0f3460 0%,transparent 50%);
-  overflow:hidden;height:100vh;width:100vw;}
+  overflow-x:hidden;min-height:100vh;width:100vw;}
 
 /* ── SCREENS ── */
 .screen{
@@ -48,7 +48,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 
 /* ── MAIN APP ── */
 #appScreen{padding:12px;}
-.app-inner{max-width:480px;margin:0 auto;}
+.app-inner{max-width:1120px;margin:0 auto;}
 
 .header{border-radius:16px 16px 0 0;padding:16px 20px 12px;text-align:center;border:4px solid rgba(0,0,0,.2);}
 .studs{display:flex;justify-content:center;gap:10px;margin-bottom:10px;}
@@ -64,6 +64,8 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 .sync-status{font-size:0.68rem;color:rgba(255,255,255,.6);margin-top:3px;}
 
 .main{background:#f0f4f8;border-radius:0 0 16px 16px;border:4px solid #ddd;border-top:none;padding:14px;}
+.earn-layout,.reward-layout{display:flex;flex-direction:column;gap:14px;}
+.earn-side,.reward-side{display:flex;flex-direction:column;gap:14px;}
 
 .balance-card{border-radius:12px;padding:16px;text-align:center;border:4px solid rgba(0,0,0,.1);
   box-shadow:0 4px 0 rgba(0,0,0,.15);margin-bottom:14px;background:var(--yellow);}
@@ -103,6 +105,9 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 
 .reward-item{background:white;border-radius:10px;padding:11px 12px;margin-bottom:7px;
   border:2px solid #e0e0e0;box-shadow:0 2px 0 #e0e0e0;}
+.reward-group{background:white;border-radius:12px;padding:12px;border:2px solid #e0e0e0;box-shadow:0 2px 0 #e0e0e0;margin-bottom:10px;}
+.reward-group-title{font-size:0.86rem;font-weight:900;color:#333;}
+.reward-group-sub{font-size:0.7rem;color:#888;font-weight:700;margin:3px 0 8px;}
 .reward-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;gap:8px;}
 .reward-left{display:flex;align-items:center;gap:9px;flex:1;}
 .reward-img{width:42px;height:42px;border-radius:8px;object-fit:cover;border:2px solid #eee;}
@@ -117,6 +122,38 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
   white-space:nowrap;font-family:'Nunito',sans-serif;transition:all .1s;}
 .claim-btn:disabled{background:#ccc;border-bottom-color:#aaa;cursor:not-allowed;color:#888;}
 .claim-btn:not(:disabled):active{transform:translateY(2px);border-bottom-width:1px;}
+.claim-btn.pending{background:#b9b9b9;border-bottom-color:#999;}
+
+.featured-reward{background:linear-gradient(135deg,#fff4c9,#ffe083);border:3px solid rgba(0,0,0,.1);border-radius:14px;
+  padding:14px;box-shadow:0 4px 0 rgba(0,0,0,.12);margin-bottom:12px;}
+.featured-kicker{font-size:0.68rem;font-weight:900;color:rgba(0,0,0,.55);text-transform:uppercase;letter-spacing:1px;}
+.featured-body{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px;}
+.featured-left{display:flex;align-items:center;gap:10px;flex:1;}
+.featured-icon{width:54px;height:54px;border-radius:12px;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;
+  font-size:2rem;border:2px solid rgba(0,0,0,.08);overflow:hidden;flex-shrink:0;}
+.featured-icon img{width:100%;height:100%;object-fit:cover;}
+.featured-name{font-size:1rem;font-weight:900;color:#222;}
+.featured-meta{font-size:0.75rem;color:rgba(0,0,0,.55);font-weight:800;margin-top:2px;}
+.featured-progress{margin-top:10px;}
+.featured-status{font-size:0.72rem;font-weight:800;color:#555;margin-top:5px;line-height:1.35;}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
+.stat-card{background:white;border-radius:12px;padding:12px;border:2px solid #e0e0e0;box-shadow:0 2px 0 #e0e0e0;}
+.stat-kicker{font-size:0.68rem;font-weight:900;color:#888;text-transform:uppercase;letter-spacing:1px;}
+.stat-value{font-size:1.35rem;font-weight:900;color:#222;margin-top:5px;}
+.stat-copy{font-size:0.72rem;color:#777;font-weight:700;margin-top:3px;line-height:1.35;}
+
+.request-list{display:flex;flex-direction:column;gap:8px;}
+.request-item{background:white;border:2px solid #e0e0e0;border-radius:10px;padding:11px 12px;box-shadow:0 2px 0 #e0e0e0;}
+.request-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.request-name{font-size:0.82rem;font-weight:900;color:#333;}
+.request-sub{font-size:0.7rem;color:#888;font-weight:700;margin-top:2px;}
+.request-status{font-size:0.66rem;font-weight:900;border-radius:999px;padding:4px 8px;text-transform:uppercase;letter-spacing:.5px;}
+.request-status.pending{background:#fff7ea;color:#c76500;}
+.request-status.approved{background:#e8f5e9;color:var(--green);}
+.request-status.declined{background:#fde8e8;color:var(--red);}
+.request-actions{display:flex;gap:6px;margin-top:10px;}
+.request-actions button{flex:1;}
 
 .history-item{background:white;border-radius:8px;padding:9px 12px;margin-bottom:6px;
   border:2px solid #eee;display:flex;justify-content:space-between;align-items:center;}
@@ -148,6 +185,22 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
   font-size:0.72rem;font-weight:900;padding:4px 12px;margin-top:8px;
 }
 .cooldown-badge.hidden{display:none;}
+.bonus-banner{
+  background:#fff7ea;border:2px solid #ffd59a;border-radius:10px;
+  padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;
+}
+.bonus-banner.hidden{display:none;}
+.bonus-title{font-size:0.82rem;font-weight:900;color:#c76500;}
+.bonus-sub{font-size:0.7rem;color:#d0822c;font-weight:700;margin-top:1px;}
+.bonus-clear{background:#ff9800;border:none;border-radius:8px;color:white;
+  font-size:0.72rem;font-weight:800;padding:6px 10px;cursor:pointer;
+  font-family:'Nunito',sans-serif;border-bottom:2px solid #c76500;flex-shrink:0;}
+.bonus-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:#ff9800;color:white;border-radius:99px;
+  font-size:0.72rem;font-weight:900;padding:4px 12px;margin-top:8px;
+}
+.bonus-badge.hidden{display:none;}
 .avatar-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px;}
 .avatar-card{border-radius:12px;border:2px solid #e0e0e0;padding:10px 8px;text-align:center;
   cursor:pointer;transition:all .15s;background:white;box-shadow:0 2px 0 #e0e0e0;position:relative;}
@@ -220,6 +273,12 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 .form-group input:focus,.form-group select:focus{outline:none;border-color:var(--blue);}
 .form-row{display:flex;gap:8px;}
 .form-row .form-group{flex:1;}
+.form-check{display:flex;align-items:flex-start;gap:10px;background:#f9f9f9;border:2px solid #eee;
+  border-radius:10px;padding:10px;margin-bottom:10px;cursor:pointer;user-select:none;}
+.form-check input{width:auto;margin-top:3px;flex-shrink:0;}
+.form-check .form-check-text{font-size:0.8rem;font-weight:800;color:#333;}
+.form-check .form-check-hint{font-size:0.68rem;color:#888;font-weight:700;margin-top:2px;}
+.form-check.hidden{display:none;}
 .img-upload-area{border:2px dashed #ccc;border-radius:10px;padding:14px;text-align:center;
   cursor:pointer;position:relative;}
 .img-upload-area:hover{border-color:var(--blue);background:#f0f7ff;}
@@ -242,6 +301,19 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 .toast.show{transform:translateX(-50%) translateY(0);}
 .toast.spend{background:var(--orange);}
 .toast.error{background:var(--red);}
+
+@media (min-width: 760px){
+  #appScreen{padding:20px;}
+  .main{padding:18px;}
+  .profile-grid{max-width:760px;}
+  .profile-btn{width:160px;height:160px;}
+  .reward-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.8fr);align-items:start;}
+}
+
+@media (min-width: 920px){
+  .earn-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.9fr);align-items:start;}
+  .tabs{max-width:620px;margin-left:auto;margin-right:auto;}
+}
 </style>
 </head>
 <body>
@@ -279,6 +351,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
       <div class="balance-sub">stars saved up</div>
       <div class="brick-row" id="brickRow"></div>
       <div class="cooldown-badge hidden" id="cooldownBadge">🔴 Cool-down active</div>
+      <div class="bonus-badge hidden" id="bonusBadge">🟠 Bonus active</div>
     </div>
 
     <div class="tabs" id="tabBar">
@@ -289,30 +362,53 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 
     <!-- EARN -->
     <div class="panel active" id="panel-earn">
-      <!-- cool-down banner — visible to all when active -->
-      <div class="cooldown-banner hidden" id="cooldownBanner">
-        <div class="cooldown-icon">🔴</div>
-        <div class="cooldown-text">
-          <div class="cooldown-title">Cool-down active</div>
-          <div class="cooldown-sub" id="cooldownSub">Self-claims and rewards are frozen.</div>
+      <div class="earn-layout">
+        <div class="earn-main">
+          <!-- cool-down banner — visible to all when active -->
+          <div class="cooldown-banner hidden" id="cooldownBanner">
+            <div class="cooldown-icon">🔴</div>
+            <div class="cooldown-text">
+              <div class="cooldown-title">Cool-down active</div>
+              <div class="cooldown-sub" id="cooldownSub">Self-claims and rewards are frozen.</div>
+            </div>
+            <button class="cooldown-clear hidden" id="cooldownClearBtn" onclick="clearCooldown()">Clear</button>
+          </div>
+          <div class="bonus-banner hidden" id="bonusBanner">
+            <div class="cooldown-icon">🟠</div>
+            <div class="cooldown-text">
+              <div class="bonus-title">Bonus active</div>
+              <div class="bonus-sub" id="bonusSub">Task earnings are multiplied for a limited time.</div>
+            </div>
+            <button class="bonus-clear hidden" id="bonusClearBtn" onclick="clearBonus()">Clear</button>
+          </div>
+          <div class="section-title" id="parentEarnTitle">🧑‍💼 Mummy / Daddy Awards</div>
+          <div id="parentBehaviours"></div>
+          <div class="section-title">🙋 I Can Claim</div>
+          <div id="selfBehaviours"></div>
+          <div class="section-title" id="bonusTitle">🌟 Bonus</div>
+          <div id="bonusBehaviours"></div>
+          <span class="reset-trigger" id="resetTrigger" style="display:none" onclick="openModal('resetModal')">⚙ Reset everything</span>
         </div>
-        <button class="cooldown-clear hidden" id="cooldownClearBtn" onclick="clearCooldown()">Clear</button>
+        <div class="earn-side">
+          <div class="section-title">📈 Progress</div>
+          <div class="stats-grid" id="progressCards"></div>
+        </div>
       </div>
-      <div class="section-title" id="parentEarnTitle">🧑‍💼 Mummy / Daddy Awards</div>
-      <div id="parentBehaviours"></div>
-      <div class="section-title">🙋 I Can Claim</div>
-      <div id="selfBehaviours"></div>
-      <div class="section-title" id="bonusTitle">🌟 Bonus</div>
-      <div id="bonusBehaviours"></div>
-      <span class="reset-trigger" id="resetTrigger" style="display:none" onclick="openModal('resetModal')">⚙ Reset everything</span>
     </div>
 
     <!-- REWARDS -->
     <div class="panel" id="panel-rewards">
-      <div class="section-title">🎁 What can you save for?</div>
-      <div id="rewardsList"></div>
-      <div class="section-title" style="margin-top:14px">🎨 Avatar Collection</div>
-      <div id="avatarGrid" class="avatar-grid"></div>
+      <div class="reward-layout">
+        <div class="reward-main">
+          <div class="section-title">🎁 What can you save for?</div>
+          <div id="featuredRewardCard"></div>
+          <div id="rewardsList"></div>
+        </div>
+        <div class="reward-side">
+          <div class="section-title" style="margin-top:0">🎨 Avatar Collection</div>
+          <div id="avatarGrid" class="avatar-grid"></div>
+        </div>
+      </div>
     </div>
 
     <!-- HISTORY -->
@@ -358,6 +454,11 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
         <button class="add-btn" onclick="openRewardModal()">+ Add Reward</button>
       </div>
 
+      <div class="parent-section">
+        <h3>📝 Reward Requests</h3>
+        <div id="manageRewardRequests" class="request-list"></div>
+      </div>
+
       <!-- Time Windows -->
       <div class="parent-section">
         <h3>⏰ Earn Windows</h3>
@@ -369,6 +470,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
       <div class="parent-section">
         <h3>⚠️ Danger Zone</h3>
         <button class="danger-btn" onclick="openModal('cooldownModal')" id="issueCooldownBtn">🔴 Issue Cool-down Token</button>
+        <button class="danger-btn" style="margin-top:6px;background:#ff9800;border-bottom-color:#c76500" onclick="openModal('bonusModal')" id="issueBonusBtn">🟠 Start Bonus Boost</button>
         <button class="danger-btn" style="margin-top:6px;background:#888;border-bottom-color:#555" onclick="openModal('resetModal')">Reset Stars & History</button>
       </div>
 
@@ -383,7 +485,7 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
 <div class="modal-overlay" id="parentQuickModal">
   <div class="modal">
     <h3>👋 Quick Actions</h3>
-    <p style="font-size:.82rem;color:#666;font-weight:600;margin-bottom:16px">Issue a cool-down token before entering, or skip to go straight to the app.</p>
+    <p style="font-size:.82rem;color:#666;font-weight:600;margin-bottom:16px">Set a quick cool-down or bonus before entering, or skip to go straight to the app.</p>
 
     <div style="background:#fff0f0;border:2px solid #ffcccc;border-radius:10px;padding:14px;margin-bottom:14px">
       <div style="font-size:0.78rem;font-weight:900;color:#c0000a;margin-bottom:10px">🔴 Issue Cool-down Token</div>
@@ -403,9 +505,35 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
       </div>
     </div>
 
+    <div style="background:#fff7ea;border:2px solid #ffd59a;border-radius:10px;padding:14px;margin-bottom:14px">
+      <div style="font-size:0.78rem;font-weight:900;color:#c76500;margin-bottom:10px">🟠 Start Bonus Boost</div>
+      <div class="form-group">
+        <label>For</label>
+        <select id="quickBonusProfile"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Multiplier</label>
+          <select id="quickBonusMultiplier">
+            <option value="2">2x</option>
+            <option value="3">3x</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Duration</label>
+          <select id="quickBonusDuration">
+            <option value="15">15 mins</option>
+            <option value="30" selected>30 mins</option>
+            <option value="60">60 mins</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <div class="modal-btns">
       <button class="btn-cancel" onclick="skipQuickAction()">Skip →</button>
-      <button class="btn-danger" onclick="issueQuickCooldown()">Issue & Enter</button>
+      <button class="btn-danger" onclick="issueQuickCooldown()">Issue Cool-down & Enter</button>
+      <button class="btn-save" onclick="issueQuickBonus()">Start Bonus & Enter</button>
     </div>
   </div>
 </div>
@@ -513,6 +641,20 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
         <p id="imgUploadText">📷 Tap to take a photo or choose from library</p>
       </div>
     </div>
+    <label class="form-check" id="rOneTimeRow">
+      <input type="checkbox" id="rOneTime" onchange="handleOneTimeToggle()"/>
+      <div>
+        <div class="form-check-text">One-time reward</div>
+        <div class="form-check-hint">Hide this reward after it's been claimed once.</div>
+      </div>
+    </label>
+    <label class="form-check hidden" id="rClaimedRow">
+      <input type="checkbox" id="rClaimed"/>
+      <div>
+        <div class="form-check-text">Mark as claimed</div>
+        <div class="form-check-hint">Uncheck to make it available again.</div>
+      </div>
+    </label>
     <div class="modal-error" id="rewardError"></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('rewardModal')">Cancel</button>
@@ -609,6 +751,37 @@ body{font-family:'Nunito',sans-serif;background:var(--dark);
   </div>
 </div>
 
+<!-- Bonus modal -->
+<div class="modal-overlay" id="bonusModal">
+  <div class="modal">
+    <h3>🟠 Start Bonus Boost</h3>
+    <p style="font-size:.82rem;color:#666;font-weight:600;margin-bottom:14px">
+      Earned tasks will be multiplied until the timer ends, or until you clear it.</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Multiplier</label>
+        <select id="bonusMultiplier">
+          <option value="2">2x</option>
+          <option value="3">3x</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Duration</label>
+        <select id="bonusDuration">
+          <option value="15">15 mins</option>
+          <option value="30" selected>30 mins</option>
+          <option value="60">60 mins</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-error" id="bonusError"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('bonusModal')">Cancel</button>
+      <button class="btn-save" onclick="issueBonus()">Start Bonus</button>
+    </div>
+  </div>
+</div>
+
 <!-- Reset modal -->
 <div class="modal-overlay" id="resetModal">
   <div class="modal">
@@ -639,10 +812,12 @@ let timeoutTimer = null;
 // ── APP STATE ─────────────────────────────────────
 let profiles = [], behaviours = [], rewards = [], history = [];
 let balance = 0, windows = [], selfClaims = [], lastGiven = {};
+let rewardRequests = [];
 let avatars = [], unlockedAvatarIds = [];
 let editingAvatarId = null, pendingAvatarBase64 = null;
 let cooldownToken = null; // { id, reason, expires_at }
-let cooldownTimer = null;let editingBehaviourId = null, editingRewardId = null;
+let bonusToken = null; // { id, multiplier, expires_at }
+let cooldownTimer = null, bonusTimer = null;let editingBehaviourId = null, editingRewardId = null;
 let editingProfileId = null, editingWindowId = null;
 let pendingImageBase64 = null;
 
@@ -659,13 +834,21 @@ async function sb(path, opts = {}) {
   const t = await res.text(); return t ? JSON.parse(t) : null;
 }
 const sbDel = (path) => sb(path, { method: 'DELETE', headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+async function sbOptional(path, fallback = []) {
+  try {
+    return await sb(path);
+  } catch (error) {
+    console.warn('[optional] request failed for', path, error);
+    return fallback;
+  }
+}
 
 // ── LOAD ──────────────────────────────────────────
 async function loadProfiles() {
   profiles = await sb('profiles?select=*&order=created_at.asc') || [];
 }
 async function loadProfileData(pid) {
-  const [stateRows, bRows, rRows, hRows, wRows, cRows, avRows, unlRows, cdRows] = await Promise.all([
+  const [stateRows, bRows, rRows, hRows, wRows, cRows, avRows, unlRows, cdRows, bonusRows, reqRows] = await Promise.all([
     sb(`child_state?profile_id=eq.${pid}&select=balance&limit=1`),
     sb(`behaviours?profile_id=eq.${pid}&select=*&order=created_at.asc`),
     sb(`rewards?profile_id=eq.${pid}&select=*&order=cost.asc`),
@@ -674,22 +857,28 @@ async function loadProfileData(pid) {
     sb(`self_claims?profile_id=eq.${pid}&select=*`),
     sb(`avatars?profile_id=eq.${pid}&select=*&order=cost.asc`),
     sb(`unlocked_avatars?profile_id=eq.${pid}&select=avatar_id`),
-    sb(`cooldown_tokens?profile_id=eq.${pid}&select=*&limit=1`)
+    sb(`cooldown_tokens?profile_id=eq.${pid}&select=*&limit=1`),
+    sb(`bonus_tokens?profile_id=eq.${pid}&select=*&limit=1`),
+    sbOptional(`reward_requests?profile_id=eq.${pid}&select=*&order=created_at.desc`)
   ]);
   console.log('[loadProfileData] hRows:', hRows?.length, 'cdRows:', cdRows?.length);
   console.log('[loadProfileData] raw earn rows:', (hRows||[]).filter(h=>h.type==='earn').map(h=>h.description));
   balance = stateRows?.[0]?.balance ?? 0;
   behaviours = bRows || [];
   rewards = rRows || [];
-  history = (hRows || []).map(r => ({ dbId: r.id, desc: r.description, amount: r.amount, type: r.type,
+  history = (hRows || []).map(r => ({ dbId: r.id, desc: r.description, amount: r.amount, type: r.type, createdAt: r.created_at,
     time: new Date(r.created_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }));
   windows = wRows || [];
   selfClaims = cRows || [];
   avatars = avRows || [];
   unlockedAvatarIds = (unlRows || []).map(r => r.avatar_id);
+  rewardRequests = reqRows || [];
   const cd = cdRows?.[0];
   cooldownToken = cd && new Date(cd.expires_at) > new Date() ? cd : null;
   if (cd && !cooldownToken && USE_SUPABASE) sbDel(`cooldown_tokens?profile_id=eq.${pid}`); // clean up expired
+  const bonus = bonusRows?.[0];
+  bonusToken = bonus && new Date(bonus.expires_at) > new Date() ? bonus : null;
+  if (bonus && !bonusToken && USE_SUPABASE) sbDel(`bonus_tokens?profile_id=eq.${pid}`);
   // build lastGiven map keyed by full stored description e.g. "😌 Handled a no calmly"
   lastGiven = {};
   for (const h of (hRows || [])) {
@@ -741,6 +930,8 @@ function confirmParentLogin() {
   // populate profile dropdown
   document.getElementById('quickCooldownProfile').innerHTML =
     profiles.map(p => `<option value="${p.id}">${p.avatar?.startsWith('data:') ? '' : p.avatar} ${p.name}</option>`).join('');
+  document.getElementById('quickBonusProfile').innerHTML =
+    profiles.map(p => `<option value="${p.id}">${p.avatar?.startsWith('data:') ? '' : p.avatar} ${p.name}</option>`).join('');
   // show quick cool-down prompt before entering app
   openModal('parentQuickModal');
 }
@@ -763,6 +954,22 @@ async function issueQuickCooldown() {
   }
   closeModal('parentQuickModal');
   showToast(`🔴 Cool-down issued for ${profile.name}`, 'spend');
+  loginAsParent();
+}
+async function issueQuickBonus() {
+  const pid = parseInt(document.getElementById('quickBonusProfile').value);
+  const multiplier = parseInt(document.getElementById('quickBonusMultiplier').value);
+  const duration = parseInt(document.getElementById('quickBonusDuration').value);
+  const profile = profiles.find(p => p.id === pid);
+  if (!profile) return;
+  const expires_at = new Date(Date.now() + duration * 60 * 1000).toISOString();
+  if (USE_SUPABASE) {
+    await sbDel(`bonus_tokens?profile_id=eq.${pid}`);
+    await sb('bonus_tokens', { method: 'POST',
+      body: JSON.stringify({ profile_id: pid, multiplier, expires_at }) });
+  }
+  closeModal('parentQuickModal');
+  showToast(`🟠 ${multiplier}x bonus started for ${profile.name}`, '');
   loginAsParent();
 }
 async function loginAsChild(profile) {
@@ -875,14 +1082,38 @@ async function earn(id) {
   // update lastGiven immediately
   const histKey = b.emoji + ' ' + b.description;
   lastGiven[histKey] = new Date();
-  await transact(histKey, b.worth, 'earn');
-  showToast(`+${b.worth} ⭐ Amazing ${session.profile.name}!`, '');
+  const multiplier = getEarnMultiplier();
+  const amount = b.worth * multiplier;
+  const desc = multiplier > 1 ? `${histKey} · ${multiplier}x bonus` : histKey;
+  await transact(desc, amount, 'earn');
+  showToast(`+${amount} ⭐ Amazing ${session.profile.name}!`, '');
 }
 async function claim(id) {
   const r = rewards.find(x => x.id === id); if (!r || balance < r.cost) return;
+  if (session.role === 'parent') return;
+  if (getPendingRewardRequest(r.id)) { showToast('⏳ This reward is already waiting for approval', 'error'); return; }
   if (isOnCooldown()) { showToast('🔴 Cool-down active — rewards frozen', 'error'); return; }
-  await transact('🎁 Claimed: ' + r.name, r.cost, 'spend');
-  showToast(`🎉 Enjoy your ${r.name}!`, 'spend');
+  await transact('🎁 Requested: ' + r.name, r.cost, 'spend');
+  const request = {
+    profile_id: session.profile.id,
+    reward_id: r.id,
+    reward_name: r.name,
+    cost: r.cost,
+    status: 'pending'
+  };
+  if (USE_SUPABASE) {
+    try {
+      const rows = await sb('reward_requests', { method:'POST', body: JSON.stringify(request) });
+      rewardRequests.unshift(rows[0]);
+    } catch (error) {
+      console.warn('reward_requests unavailable, storing request locally', error);
+      rewardRequests.unshift({ ...request, id: Date.now(), created_at: new Date().toISOString() });
+    }
+  } else {
+    rewardRequests.unshift({ ...request, id: Date.now(), created_at: new Date().toISOString() });
+  }
+  render();
+  showToast(`📝 ${r.name} requested for approval`, '');
 }
 async function transact(desc, amount, type) {
   const nb = type === 'earn' ? balance + amount : balance - amount;
@@ -893,7 +1124,7 @@ async function transact(desc, amount, type) {
     ]);
   }
   balance = nb;
-  history.unshift({ desc, amount, type, time: now() });
+  history.unshift({ desc, amount, type, time: now(), createdAt: new Date().toISOString() });
   render();
 }
 
@@ -1018,6 +1249,8 @@ function openRewardModal(id = null) {
     document.getElementById('rEmoji').value = r.emoji;
     document.getElementById('rName').value = r.name;
     document.getElementById('rCost').value = r.cost;
+    document.getElementById('rOneTime').checked = !!r.one_time;
+    document.getElementById('rClaimed').checked = !!r.claimed;
     if (r.image_url) {
       document.getElementById('rImagePreview').src = r.image_url;
       document.getElementById('rImagePreview').style.display = 'block';
@@ -1027,8 +1260,18 @@ function openRewardModal(id = null) {
     document.getElementById('rEmoji').value = '🎁';
     document.getElementById('rName').value = '';
     document.getElementById('rCost').value = 10;
+    document.getElementById('rOneTime').checked = false;
+    document.getElementById('rClaimed').checked = false;
   }
+  handleOneTimeToggle();
   openModal('rewardModal');
+}
+function handleOneTimeToggle() {
+  const oneTime = document.getElementById('rOneTime').checked;
+  const claimedRow = document.getElementById('rClaimedRow');
+  const claimedInput = document.getElementById('rClaimed');
+  claimedRow.classList.toggle('hidden', !oneTime);
+  if (!oneTime) claimedInput.checked = false;
 }
 function handleImageSelect(e) {
   const file = e.target.files[0]; if (!file) return;
@@ -1045,15 +1288,17 @@ async function saveReward() {
   const emoji = document.getElementById('rEmoji').value.trim();
   const name = document.getElementById('rName').value.trim();
   const cost = parseInt(document.getElementById('rCost').value);
+  const one_time = document.getElementById('rOneTime').checked;
+  const claimed = one_time && document.getElementById('rClaimed').checked;
   if (!name) { document.getElementById('rewardError').textContent = 'Please add a name.'; return; }
   let image_url = editingRewardId ? (rewards.find(x => x.id === editingRewardId)?.image_url || null) : null;
   if (pendingImageBase64) image_url = pendingImageBase64;
-  const data = { emoji, name, cost, image_url, profile_id: session.profile.id };
+  const data = { emoji, name, cost, image_url, one_time, claimed, profile_id: session.profile.id };
   if (USE_SUPABASE) {
     if (editingRewardId) {
-      await sb(`rewards?id=eq.${editingRewardId}`, { method: 'PATCH', body: JSON.stringify({ emoji, name, cost, image_url }) });
+      await sb(`rewards?id=eq.${editingRewardId}`, { method: 'PATCH', body: JSON.stringify({ emoji, name, cost, image_url, one_time, claimed }) });
       const idx = rewards.findIndex(x => x.id === editingRewardId);
-      rewards[idx] = { ...rewards[idx], emoji, name, cost, image_url };
+      rewards[idx] = { ...rewards[idx], emoji, name, cost, image_url, one_time, claimed };
     } else {
       const rows = await sb('rewards', { method: 'POST', body: JSON.stringify(data) });
       rewards.push(rows[0]);
@@ -1061,7 +1306,7 @@ async function saveReward() {
   } else {
     if (editingRewardId) {
       const idx = rewards.findIndex(x => x.id === editingRewardId);
-      rewards[idx] = { ...rewards[idx], emoji, name, cost, image_url };
+      rewards[idx] = { ...rewards[idx], emoji, name, cost, image_url, one_time, claimed };
     } else { rewards.push({ ...data, id: Date.now() }); }
   }
   closeModal('rewardModal'); render(); showToast('Saved ✓', '');
@@ -1070,6 +1315,7 @@ async function deleteReward(id) {
   if (!confirm('Delete this reward?')) return;
   if (USE_SUPABASE) await sbDel(`rewards?id=eq.${id}`);
   rewards = rewards.filter(x => x.id !== id);
+  rewardRequests = rewardRequests.filter(x => x.reward_id !== id);
   render(); showToast('Deleted', 'spend');
 }
 
@@ -1193,6 +1439,20 @@ function isOnCooldown() {
   return true;
 }
 
+function isBonusActive() {
+  if (!bonusToken) return false;
+  if (new Date(bonusToken.expires_at) <= new Date()) {
+    bonusToken = null;
+    if (USE_SUPABASE) sbDel(`bonus_tokens?profile_id=eq.${session.profile.id}`);
+    return false;
+  }
+  return true;
+}
+
+function getEarnMultiplier() {
+  return isBonusActive() ? Math.max(1, parseInt(bonusToken.multiplier) || 1) : 1;
+}
+
 function renderCooldown() {
   clearInterval(cooldownTimer);
   const active = isOnCooldown();
@@ -1218,6 +1478,35 @@ function renderCooldown() {
     };
     updateSub();
     cooldownTimer = setInterval(updateSub, 1000);
+  }
+}
+
+function renderBonus() {
+  clearInterval(bonusTimer);
+  const active = isBonusActive();
+  const badge = document.getElementById('bonusBadge');
+  const banner = document.getElementById('bonusBanner');
+  const clearBtn = document.getElementById('bonusClearBtn');
+  const issueBtnEl = document.getElementById('issueBonusBtn');
+
+  badge.classList.toggle('hidden', !active);
+  banner.classList.toggle('hidden', !active);
+  if (clearBtn) clearBtn.classList.toggle('hidden', session.role !== 'parent');
+  if (issueBtnEl) issueBtnEl.textContent = active ? `🟠 ${bonusToken.multiplier}x Bonus Active` : '🟠 Start Bonus Boost';
+  if (issueBtnEl) issueBtnEl.disabled = active;
+
+  if (active) {
+    const updateSub = () => {
+      const ms = new Date(bonusToken.expires_at) - new Date();
+      if (ms <= 0) { bonusToken = null; renderBonus(); render(); return; }
+      const mins = Math.floor(ms / 60000);
+      const secs = Math.floor((ms % 60000) / 1000);
+      document.getElementById('bonusBadge').textContent = `🟠 ${bonusToken.multiplier}x bonus active`;
+      document.getElementById('bonusSub').textContent =
+        `${bonusToken.multiplier}x stars on earned tasks · Ends in ${mins}:${String(secs).padStart(2,'0')}`;
+    };
+    updateSub();
+    bonusTimer = setInterval(updateSub, 1000);
   }
 }
 
@@ -1247,6 +1536,34 @@ async function clearCooldown() {
   renderCooldown();
   render();
   showToast('✓ Cool-down cleared', '');
+}
+
+async function issueBonus() {
+  const multiplier = parseInt(document.getElementById('bonusMultiplier').value);
+  const duration = parseInt(document.getElementById('bonusDuration').value);
+  const expires_at = new Date(Date.now() + duration * 60 * 1000).toISOString();
+  if (USE_SUPABASE) {
+    await sb(`bonus_tokens?profile_id=eq.${session.profile.id}`, { method:'DELETE',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`} });
+    const rows = await sb('bonus_tokens', { method:'POST',
+      body: JSON.stringify({ profile_id: session.profile.id, multiplier, expires_at }) });
+    bonusToken = rows[0];
+  } else {
+    bonusToken = { multiplier, expires_at, id: Date.now() };
+  }
+  closeModal('bonusModal');
+  renderBonus();
+  render();
+  showToast(`🟠 ${multiplier}x bonus started`, '');
+}
+
+async function clearBonus() {
+  if (USE_SUPABASE) await sbDel(`bonus_tokens?profile_id=eq.${session.profile.id}`);
+  bonusToken = null;
+  clearInterval(bonusTimer);
+  renderBonus();
+  render();
+  showToast('✓ Bonus cleared', '');
 }
 
 // ── AVATAR CRUD (parent) ──────────────────────────
@@ -1361,10 +1678,12 @@ async function confirmReset() {
     await Promise.all([
       sb(`child_state?profile_id=eq.${session.profile.id}`, { method: 'PATCH', body: JSON.stringify({ balance: 0 }) }),
       sbDel(`history?profile_id=eq.${session.profile.id}`),
-      sbDel(`self_claims?profile_id=eq.${session.profile.id}`)
+      sbDel(`self_claims?profile_id=eq.${session.profile.id}`),
+      sbDel(`reward_requests?profile_id=eq.${session.profile.id}&status=eq.pending`).catch(() => null)
     ]);
   }
   balance = 0; history = []; selfClaims = [];
+  rewardRequests = rewardRequests.filter(r => r.status !== 'pending');
   closeModal('resetModal'); render(); showToast('Reset ✓', '');
 }
 
@@ -1381,6 +1700,8 @@ function render() {
   }
 
   const isParent = session.role === 'parent';
+  const visibleRewards = rewards.filter(r => !(r.one_time && r.claimed));
+  const featuredReward = pickFeaturedReward(visibleRewards);
 
   // parent earn section
   document.getElementById('parentEarnTitle').style.display = isParent ? '' : 'none';
@@ -1393,25 +1714,11 @@ function render() {
     renderBehaviourGroup('bonusBehaviours', 'bonus', true);
   }
   renderBehaviourGroup('selfBehaviours', 'self', isParent);
+  renderProgressCards();
 
   // rewards
-  document.getElementById('rewardsList').innerHTML = rewards.length ? rewards.map(r => {
-    const pct = Math.min(100, Math.round((balance / r.cost) * 100));
-    const can = balance >= r.cost;
-    const img = r.image_url
-      ? `<img src="${r.image_url}" class="reward-img" onerror="this.style.display='none'"/>`
-      : `<div class="reward-emoji-lg">${r.emoji}</div>`;
-    return `<div class="reward-item">
-      <div class="reward-top">
-        <div class="reward-left">${img}
-          <div><div class="reward-name">${r.name}</div><div class="reward-cost">${r.cost} ⭐ needed</div></div>
-        </div>
-        <button class="claim-btn" ${can?'':'disabled'} onclick="claim(${r.id})">${can?'Claim! 🎉':`${r.cost-balance} more ⭐`}</button>
-      </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div class="progress-label">${pct}% there!</div>
-    </div>`;
-  }).join('') : '<div class="empty">No rewards yet</div>';
+  document.getElementById('featuredRewardCard').innerHTML = featuredReward ? renderFeaturedReward(featuredReward) : '';
+  document.getElementById('rewardsList').innerHTML = visibleRewards.length ? renderRewardGroups(visibleRewards, featuredReward?.id) : '<div class="empty">No rewards yet</div>';
 
   // history
   document.getElementById('historyList').innerHTML = history.length ? history.slice(0, 30).map((h, i) =>
@@ -1425,6 +1732,7 @@ function render() {
 
   // cool-down
   renderCooldown();
+  renderBonus();
 
   // avatars
   renderAvatarGrid();
@@ -1435,29 +1743,32 @@ function render() {
 
 function renderBehaviourGroup(elId, type, canAward) {
   const list = behaviours.filter(b => b.type === type);
+  const multiplier = getEarnMultiplier();
   console.log(`[render] ${type} behaviours:`, list.map(b => b.emoji+' '+b.description));
   console.log(`[render] lastGiven keys:`, Object.keys(lastGiven));
   if (!list.length) { document.getElementById(elId).innerHTML = '<div class="empty">None yet</div>'; return; }
   document.getElementById(elId).innerHTML = list.map(b => {
+    const effectiveWorth = b.worth * multiplier;
     let btn = '';
     if (canAward) {
-      btn = `<button class="award-btn ${type}" onclick="earn(${b.id})">+${b.worth} ⭐</button>`;
+      btn = `<button class="award-btn ${type}" onclick="earn(${b.id})">+${effectiveWorth} ⭐</button>`;
     } else if (type === 'self') {
       const inWin = isInWindow();
       const claimed = hasClaimedInWindow(b.id);
       if (inWin && !claimed) {
-        btn = `<button class="award-btn self" onclick="earn(${b.id})">+${b.worth} ⭐</button>`;
+        btn = `<button class="award-btn self" onclick="earn(${b.id})">+${effectiveWorth} ⭐</button>`;
       }
       // if outside window or already claimed: button hidden entirely
     }
     const histKey = b.emoji + ' ' + b.description;
     const lastGivenText = lastGiven[histKey] ? relativeTime(lastGiven[histKey]) : null;
     const lastGivenHtml = lastGivenText ? `<span class="last-given">Last: ${lastGivenText}</span>` : '';
+    const bonusHtml = multiplier > 1 ? ` · Bonus live: ${multiplier}x` : '';
     return `<div class="behaviour-item">
       <div class="behaviour-left">
         <div class="behaviour-emoji">${b.emoji}</div>
         <div><div class="behaviour-text">${b.description}</div>
-        <div class="behaviour-worth">Worth ${b.worth} ⭐${lastGivenHtml ? ' · ' + lastGivenHtml : ''}</div></div>
+        <div class="behaviour-worth">Worth ${effectiveWorth} ⭐${bonusHtml}${lastGivenHtml ? ' · ' + lastGivenHtml : ''}</div></div>
       </div>
       ${btn}
     </div>`;
@@ -1509,12 +1820,34 @@ function renderParentPanel() {
   document.getElementById('manageRewards').innerHTML = rewards.map(r =>
     `<div class="manage-item">
       ${r.image_url ? `<img src="${r.image_url}" class="manage-img"/>` : `<div class="manage-emoji">${r.emoji}</div>`}
-      <div class="manage-text">${r.name}<br><span class="manage-sub">${r.cost} ⭐</span></div>
+      <div class="manage-text">${r.name}<br><span class="manage-sub">${r.cost} ⭐${r.one_time ? ' · one-time' : ''}${r.one_time && r.claimed ? ' · claimed' : ''}</span></div>
       <div class="manage-btns">
         <button class="edit-btn" onclick="openRewardModal(${r.id})">Edit</button>
         <button class="del-btn" onclick="deleteReward(${r.id})">Del</button>
       </div>
     </div>`).join('') || '<div class="empty">None yet</div>';
+
+  const sortedRequests = rewardRequests
+    .slice()
+    .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+    .slice(0, 10);
+  document.getElementById('manageRewardRequests').innerHTML = sortedRequests.length ? sortedRequests.map(req => {
+    const profile = profiles.find(p => p.id === req.profile_id);
+    const status = req.status || 'pending';
+    return `<div class="request-item">
+      <div class="request-top">
+        <div>
+          <div class="request-name">${req.reward_name}</div>
+          <div class="request-sub">${profile ? profile.name : session.profile.name} · ${req.cost} ⭐ · ${relativeTime(new Date(req.created_at || Date.now()))}</div>
+        </div>
+        <div class="request-status ${status}">${status}</div>
+      </div>
+      ${status === 'pending' ? `<div class="request-actions">
+        <button class="btn-save" onclick="approveRewardRequest(${req.id})">Approve</button>
+        <button class="btn-danger" onclick="declineRewardRequest(${req.id})">Decline</button>
+      </div>` : ''}
+    </div>`;
+  }).join('') : '<div class="empty">No reward requests yet</div>';
 
   document.getElementById('manageWindows').innerHTML = windows.map(w =>
     `<div class="window-item">
@@ -1564,6 +1897,229 @@ function relativeTime(date) {
 }
 
 function now() { return new Date().toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }); }
+
+function getPendingRewardRequest(rewardId) {
+  return rewardRequests.find(r => r.reward_id === rewardId && r.status === 'pending');
+}
+
+function getRewardBuckets(list) {
+  return [
+    { title: 'Quick Wins', sub: 'Small treats for fast motivation.', rewards: list.filter(r => r.cost <= 5) },
+    { title: 'Medium Goals', sub: 'A little saving, still very reachable.', rewards: list.filter(r => r.cost > 5 && r.cost <= 20) },
+    { title: 'Big Goals', sub: 'Bigger rewards worth saving up for.', rewards: list.filter(r => r.cost > 20) }
+  ].filter(group => group.rewards.length);
+}
+
+function hashSeed(text) {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
+  return Math.abs(hash);
+}
+
+function pickFeaturedReward(list) {
+  if (!list.length || !session.profile) return null;
+  const seed = `${session.profile.id}-${new Date().toLocaleDateString('en-CA')}`;
+  return list[hashSeed(seed) % list.length];
+}
+
+function renderRewardButton(reward) {
+  const pending = getPendingRewardRequest(reward.id);
+  if (session.role !== 'child') {
+    return pending ? '<button class="claim-btn pending" disabled>Pending</button>' : '';
+  }
+  if (pending) return '<button class="claim-btn pending" disabled>Pending approval</button>';
+  if (balance >= reward.cost) return `<button class="claim-btn" onclick="claim(${reward.id})">Request 🎉</button>`;
+  return `<button class="claim-btn" disabled>${reward.cost - balance} more ⭐</button>`;
+}
+
+function renderFeaturedReward(reward) {
+  const pct = Math.min(100, Math.round((balance / reward.cost) * 100));
+  const pending = getPendingRewardRequest(reward.id);
+  const status = pending
+    ? 'Waiting for a parent to approve this reward.'
+    : balance >= reward.cost
+      ? 'You have enough stars to request this reward.'
+      : `${reward.cost - balance} more ⭐ to unlock this one.`;
+  const icon = reward.image_url
+    ? `<div class="featured-icon"><img src="${reward.image_url}" alt="${reward.name}"/></div>`
+    : `<div class="featured-icon">${reward.emoji}</div>`;
+  return `<div class="featured-reward">
+    <div class="featured-kicker">Today&apos;s featured reward</div>
+    <div class="featured-body">
+      <div class="featured-left">
+        ${icon}
+        <div>
+          <div class="featured-name">${reward.name}</div>
+          <div class="featured-meta">${reward.cost} ⭐${reward.one_time ? ' · one-time reward' : ''}</div>
+        </div>
+      </div>
+      ${renderRewardButton(reward)}
+    </div>
+    <div class="featured-progress">
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="featured-status">${status}</div>
+    </div>
+  </div>`;
+}
+
+function renderRewardItem(reward) {
+  const pct = Math.min(100, Math.round((balance / reward.cost) * 100));
+  const img = reward.image_url
+    ? `<img src="${reward.image_url}" class="reward-img" onerror="this.style.display='none'"/>`
+    : `<div class="reward-emoji-lg">${reward.emoji}</div>`;
+  const oneTimeLabel = reward.one_time ? '<div class="reward-cost">One-time reward</div>' : '';
+  return `<div class="reward-item">
+    <div class="reward-top">
+      <div class="reward-left">${img}
+        <div><div class="reward-name">${reward.name}</div><div class="reward-cost">${reward.cost} ⭐ needed</div>${oneTimeLabel}</div>
+      </div>
+      ${renderRewardButton(reward)}
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="progress-label">${pct}% there!</div>
+  </div>`;
+}
+
+function renderRewardGroups(list, featuredId) {
+  return getRewardBuckets(list).map(group => {
+    const items = group.rewards.filter(r => r.id !== featuredId).map(renderRewardItem).join('');
+    if (!items) return '';
+    return `<div class="reward-group">
+      <div class="reward-group-title">${group.title}</div>
+      <div class="reward-group-sub">${group.sub}</div>
+      ${items}
+    </div>`;
+  }).join('');
+}
+
+function dateKeyLocal(value) {
+  const date = new Date(value);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getEarnHistoryForProgress() {
+  return history.filter(h => h.type === 'earn' && !h.desc.startsWith('↩️ Refund'));
+}
+
+function getStreakSummary() {
+  const earnHistory = getEarnHistoryForProgress();
+  if (!earnHistory.length) return { current: 0, best: 0 };
+  const uniqueDays = [...new Set(earnHistory.map(h => dateKeyLocal(h.createdAt || Date.now())))].sort();
+  let best = 0;
+  let run = 0;
+  let prev = null;
+  for (const key of uniqueDays) {
+    if (!prev) {
+      run = 1;
+    } else {
+      const diff = (new Date(`${key}T00:00:00`) - new Date(`${prev}T00:00:00`)) / 86400000;
+      run = diff === 1 ? run + 1 : 1;
+    }
+    best = Math.max(best, run);
+    prev = key;
+  }
+
+  const uniqueSet = new Set(uniqueDays);
+  let cursor = new Date();
+  let current = 0;
+  while (uniqueSet.has(dateKeyLocal(cursor))) {
+    current++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  if (!current) {
+    cursor = new Date();
+    cursor.setDate(cursor.getDate() - 1);
+    while (uniqueSet.has(dateKeyLocal(cursor))) {
+      current++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+  }
+  return { current, best };
+}
+
+function getWeeklyMilestone() {
+  const target = 10;
+  const start = new Date();
+  const weekday = (start.getDay() + 6) % 7;
+  start.setHours(0, 0, 0, 0);
+  start.setDate(start.getDate() - weekday);
+  const earned = getEarnHistoryForProgress()
+    .filter(h => new Date(h.createdAt || Date.now()) >= start)
+    .reduce((sum, h) => sum + h.amount, 0);
+  return { target, earned };
+}
+
+function renderProgressCards() {
+  const streak = getStreakSummary();
+  const week = getWeeklyMilestone();
+  const cards = [
+    {
+      kicker: 'Current streak',
+      value: streak.current ? `${streak.current} day${streak.current === 1 ? '' : 's'}` : 'Start today',
+      copy: streak.current ? 'Keep earning on consecutive days to build momentum.' : 'One earn today starts a new streak.'
+    },
+    {
+      kicker: 'Best streak',
+      value: `${streak.best} day${streak.best === 1 ? '' : 's'}`,
+      copy: streak.best ? 'Your longest run so far.' : 'No streak yet.'
+    },
+    {
+      kicker: 'Weekly milestone',
+      value: `${week.earned}/${week.target} ⭐`,
+      copy: week.earned >= week.target ? 'Weekly goal complete. Nice work.' : `${week.target - week.earned} more ⭐ to hit this week’s goal.`
+    }
+  ];
+  document.getElementById('progressCards').innerHTML = cards.map(card => `<div class="stat-card">
+    <div class="stat-kicker">${card.kicker}</div>
+    <div class="stat-value">${card.value}</div>
+    <div class="stat-copy">${card.copy}</div>
+  </div>`).join('');
+}
+
+async function approveRewardRequest(id) {
+  const request = rewardRequests.find(r => r.id === id);
+  if (!request || request.status !== 'pending') return;
+  const reward = rewards.find(r => r.id === request.reward_id);
+  const resolved_at = new Date().toISOString();
+  if (USE_SUPABASE) {
+    try {
+      await sb(`reward_requests?id=eq.${id}`, { method:'PATCH', body: JSON.stringify({ status: 'approved', resolved_at }) });
+    } catch (error) {
+      console.warn('reward_requests unavailable during approval', error);
+    }
+    if (reward?.one_time) {
+      await sb(`rewards?id=eq.${reward.id}`, { method:'PATCH', body: JSON.stringify({ claimed: true }) });
+    }
+  }
+  request.status = 'approved';
+  request.resolved_at = resolved_at;
+  if (reward?.one_time) {
+    const idx = rewards.findIndex(r => r.id === reward.id);
+    if (idx >= 0) rewards[idx] = { ...rewards[idx], claimed: true };
+  }
+  render();
+  showToast('Reward approved ✓', '');
+}
+
+async function declineRewardRequest(id) {
+  const request = rewardRequests.find(r => r.id === id);
+  if (!request || request.status !== 'pending') return;
+  const resolved_at = new Date().toISOString();
+  if (USE_SUPABASE) {
+    try {
+      await sb(`reward_requests?id=eq.${id}`, { method:'PATCH', body: JSON.stringify({ status: 'declined', resolved_at }) });
+    } catch (error) {
+      console.warn('reward_requests unavailable during decline', error);
+    }
+  }
+  request.status = 'declined';
+  request.resolved_at = resolved_at;
+  await transact(`↩️ Refund: ${request.reward_name}`, request.cost, 'earn');
+  showToast('Reward declined and stars refunded', 'spend');
+}
 
 // ── INIT ──────────────────────────────────────────
 async function init() {

@@ -1,0 +1,2 @@
+# Exclude from Vercel deployment – backed up in repo but not published
+docs/private/
