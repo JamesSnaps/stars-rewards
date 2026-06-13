@@ -1,0 +1,79 @@
+name: stars-rewards
+
+# Self-hosted replacement for Supabase + Vercel.
+#   stars-db    — Postgres (the database, replaces Supabase Postgres)
+#   stars-api   — PostgREST (the /rest/v1/ API, the same engine Supabase wraps)
+#   stars-web   — nginx (serves the static app + proxies /rest/v1/ to PostgREST)
+#   stars-trmnl — tiny Node service for the TRMNL e-ink JSON endpoint (optional)
+#
+# LAN-only deployment: no external auth in front. Keep the published port on
+# your home network only, or put it behind Traefik/Authelia later.
+
+services:
+  stars-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stars
+      POSTGRES_USER: stars
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTICATOR_PASSWORD: ${AUTHENTICATOR_PASSWORD}
+    volumes:
+      - stars-db-data:/var/lib/postgresql/data
+      - ./db/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stars -d stars"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - stars-net
+
+  stars-api:
+    image: postgrest/postgrest:latest
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${AUTHENTICATOR_PASSWORD}@stars-db:5432/stars
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_AGGREGATES_ENABLED: "true"
+    depends_on:
+      stars-db:
+        condition: service_healthy
+    networks:
+      - stars-net
+
+  stars-web:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./:/usr/share/nginx/html:ro
+    ports:
+      - "8090:80"          # http://<server-ip>:8090  — keep on LAN
+    depends_on:
+      - stars-api
+    networks:
+      - stars-net
+
+  stars-trmnl:
+    build:
+      context: .
+      dockerfile: docker/trmnl.Dockerfile
+    restart: unless-stopped
+    environment:
+      POSTGREST_URL: http://stars-api:3000
+      ANON_JWT: ${ANON_JWT}
+      TRMNL_PROFILE_ID: ${TRMNL_PROFILE_ID:-1}
+    depends_on:
+      - stars-api
+    networks:
+      - stars-net
+
+volumes:
+  stars-db-data:
+
+networks:
+  stars-net:
+    driver: bridge

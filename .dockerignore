@@ -1,0 +1,9 @@
+.git
+.github
+.env
+*.dump
+stars-backup-*
+docs
+node_modules
+README.md
+MIGRATION.md
